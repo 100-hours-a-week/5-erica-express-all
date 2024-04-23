@@ -97,22 +97,22 @@ const reader = new FileReader();
   });
 })();
 
-function getScrollPosition() {
+const getScrollPosition = () => {
   const scrollPosition = document.documentElement.scrollTop;
   return { scrollPosition };
-}
+};
 
-function disableScroll() {
+const disableScroll = () => {
   const scrollPosition = getScrollPosition();
   // 스크롤을 막기 위해 body에 스타일을 적용
   document.body.style.overflow = "hidden";
   // 현재 스크롤 위치를 다시 적용하여 화면이 이동하지 않도록 함
   window.scrollTo(scrollPosition);
-}
+};
 
-function enableScroll() {
+const enableScroll = () => {
   document.body.style.overflow = "visible";
-}
+};
 
 const deleteButton = document.querySelector(".deleteButton");
 const deleteModal = document.querySelector(".modalContainer");
@@ -120,7 +120,7 @@ const deleteModal = document.querySelector(".modalContainer");
 deleteButton.addEventListener("click", () => {
   const modalPositionTop = getScrollPosition().scrollPosition;
   deleteModal.style.display = "flex";
-  deleteModal.style.top = modalPositionTop + "px";
+  deleteModal.style.top = `${modalPositionTop}px`;
   disableScroll();
 });
 

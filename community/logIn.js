@@ -26,7 +26,7 @@ logInButton.addEventListener("click", async () => {
       logInButton.style.backgroundColor = "#7f6aee";
       sessionStorage.setItem("userId", responseData.data.userId);
       helperText.innerHTML = "";
-      setTimeout(function () {
+      setTimeout(() => {
         location.href = "/board/index.html";
       }, 3000);
       return;

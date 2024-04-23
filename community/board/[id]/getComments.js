@@ -3,7 +3,7 @@ const writeButton = document.querySelector(".writeButton");
 const updateButton = document.querySelector(".updateButton");
 let targetCommentId = null;
 
-function readComments(comment) {
+const readComments = (comment) => {
   const commentContainer = document.createElement("div");
   commentContainer.className = "comment";
   commentContainer.innerHTML = `
@@ -23,7 +23,7 @@ function readComments(comment) {
   `;
 
   document.querySelector(".commentList").appendChild(commentContainer);
-}
+};
 
 (async () => {
   const response = await fetch(
@@ -60,7 +60,7 @@ function readComments(comment) {
 
       const modalPositionTop = getScrollPosition().scrollPosition;
       commentModalContainer.style.display = "flex";
-      commentModalContainer.style.top = modalPositionTop + "px";
+      commentModalContainer.style.top = `${modalPositionTop}px`;
       disableScroll();
     });
 

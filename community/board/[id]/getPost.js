@@ -4,7 +4,7 @@ const boardModalContainer = document.querySelector(".boardModalContainer");
 
 const urlPostId = Number(window.location.search.split("=")[1]);
 
-function readPost(post) {
+const readPost = (post) => {
   //조회수 댓글
   let postView = "";
   if (post.view >= 1000000) {
@@ -67,7 +67,7 @@ function readPost(post) {
   deletePostButton.addEventListener("click", () => {
     const modalPositionTop = getScrollPosition().scrollPosition;
     boardModalContainer.style.display = "flex";
-    boardModalContainer.style.top = modalPositionTop + "px";
+    boardModalContainer.style.top = `${modalPositionTop}px`;
     disableScroll();
   });
 
@@ -109,24 +109,24 @@ function readPost(post) {
       boardModalContainer.style.display = "none";
       enableScroll();
     });
-}
+};
 
-function getScrollPosition() {
+const getScrollPosition = () => {
   const scrollPosition = document.documentElement.scrollTop;
   return { scrollPosition };
-}
+};
 
-function disableScroll() {
+const disableScroll = () => {
   const scrollPosition = getScrollPosition();
   // 스크롤을 막기 위해 body에 스타일을 적용
   document.body.style.overflow = "hidden";
   // 현재 스크롤 위치를 다시 적용하여 화면이 이동하지 않도록 함
   window.scrollTo(scrollPosition);
-}
+};
 
-function enableScroll() {
+const enableScroll = () => {
   document.body.style.overflow = "visible";
-}
+};
 
 (async () => {
   const response = await fetch(`http://localhost:8000/api/posts/${urlPostId}`);

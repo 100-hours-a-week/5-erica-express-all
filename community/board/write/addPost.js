@@ -5,7 +5,7 @@ const contentInput = document.getElementById("boardInputContent");
 const postImageInput = document.getElementById("boardInputImage");
 const reader = new FileReader();
 
-function onInputHandler() {
+const onInputHandler = () => {
   const title = titleInput.value.trim();
   const content = contentInput.value.trim();
 
@@ -14,7 +14,7 @@ function onInputHandler() {
   } else {
     writeButton.style.backgroundColor = "";
   }
-}
+};
 
 titleInput.addEventListener("input", onInputHandler);
 contentInput.addEventListener("input", onInputHandler);

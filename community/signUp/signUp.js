@@ -17,7 +17,7 @@ const signUpForm = document.querySelector(".signUpContainer");
 const reader = new FileReader();
 
 //프로필 이미지 유효성 검사
-function checkImageValidation(image) {
+const checkImageValidation = (image) => {
   const isImageNotNull = image ? true : false;
 
   if (!isImageNotNull) {
@@ -27,10 +27,10 @@ function checkImageValidation(image) {
 
   profileImageText.innerHTML = "";
   return true;
-}
+};
 
 //이메일 유효성 검사
-async function checkEmailValidation(email) {
+const checkEmailValidation = async (email) => {
   //이메일이 없을 시
   if (!email) {
     emailText.innerHTML = "* 이메일을 입력해주세요.";
@@ -67,10 +67,10 @@ async function checkEmailValidation(email) {
 
   emailText.innerHTML = "";
   return true;
-}
+};
 
 //비밀번호 유효성 검사
-function checkPasswordValidation(password, passwordCheck) {
+const checkPasswordValidation = (password, passwordCheck) => {
   if (!password && !passwordCheck) {
     passwordText.innerHTML = "* 비밀번호를 입력해주세요.";
     passwordCheckText.innerHTML = "* 비밀번호를 한번 더 입력해주세요.";
@@ -108,10 +108,10 @@ function checkPasswordValidation(password, passwordCheck) {
   passwordText.innerHTML = "";
   passwordCheckText.innerHTML = "";
   return true;
-}
+};
 
 //닉네임 유효성 검사
-async function checkNicknameValidation(nickname) {
+const checkNicknameValidation = async (nickname) => {
   const hasNicknameSpace = nickname?.indexOf(" ") !== -1 ? true : false;
 
   if (!nickname) {
@@ -147,7 +147,7 @@ async function checkNicknameValidation(nickname) {
 
   nicknameText.innerHTML = "";
   return true;
-}
+};
 
 //회원가입 버튼 클릭 시
 signUpButton.addEventListener("click", async () => {

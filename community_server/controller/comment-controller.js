@@ -3,7 +3,7 @@ import { checkUser } from "./user-controller.js";
 import { getPost } from "./post-controller.js";
 let commentNum = comments.length;
 
-function getLocalDateTime() {
+const getLocalDateTime = () => {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
@@ -14,10 +14,10 @@ function getLocalDateTime() {
 
   const localDateTime = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
   return localDateTime;
-}
+};
 
 //댓글 관련 service
-function getComment(data) {
+const getComment = (data) => {
   const comment = comments.find(
     (comment) =>
       comment.commentId === data.commentId &&
@@ -28,9 +28,9 @@ function getComment(data) {
     return null;
   }
   return comment;
-}
+};
 
-function getComments(postId) {
+const getComments = (postId) => {
   const commentList = comments.filter(
     (comment) => comment.postId === postId && comment.deleted_at === null
   );
@@ -38,9 +38,9 @@ function getComments(postId) {
     return null;
   }
   return commentList;
-}
+};
 
-function registerComments(data) {
+const registerComments = (data) => {
   const user = checkUser(data.userId);
   const commentId = commentNum + 1;
   const date = getLocalDateTime();
@@ -59,25 +59,25 @@ function registerComments(data) {
   commentNum += 1;
   comments.push(newComment);
   return true;
-}
+};
 
-function updateComment(data) {
+const updateComment = (data) => {
   //TODO: post id 검증 추가
   const commentId = data.commentId;
   const commentContent = data.commentContent;
 
   comments[commentId - 1].comment = commentContent;
   return true;
-}
+};
 
-function eraseComment(commentId) {
+const eraseComment = (commentId) => {
   const date = getLocalDateTime();
   comments[commentId - 1].deleted_at = date;
   return true;
-}
+};
 
 //실제 controller 역할
-function getCommentList(req, res) {
+const getCommentList = (req, res) => {
   const postId = Number(req.params.postId);
   if (!postId) {
     res
@@ -93,9 +93,10 @@ function getCommentList(req, res) {
   }
 
   res.status(200).json({ status: 200, message: null, data: commentList });
-}
+  return;
+};
 
-function postComment(req, res) {
+const postComment = (req, res) => {
   const postId = Number(req.params.postId);
   const comment = req.body.comment;
   const userId = Number(req.body.userId);
@@ -132,12 +133,15 @@ function postComment(req, res) {
       .status(500)
       .json({ status: 500, message: "internal_sever_error", data: null });
   }
+
   res
     .status(201)
     .json({ status: 201, message: "write_comment_success", data: null });
-}
 
-function patchComment(req, res) {
+  return;
+};
+
+const patchComment = (req, res) => {
   const postId = Number(req.params.postId);
   const commentId = Number(req.params.commentId);
   const commentContent = req.body.comment;
@@ -154,6 +158,7 @@ function patchComment(req, res) {
       .status(400)
       .json({ status: 400, message: "invalid_post_id", data: null });
   }
+
   if (!commentId) {
     res
       .status(400)
@@ -166,15 +171,17 @@ function patchComment(req, res) {
       .status(500)
       .json({ status: 500, message: "internal_server_error", data: null });
   }
+
   res
     .status(200)
     .json({ status: 200, message: "update_comment_success", data: null });
-}
 
-function deleteComment(req, res) {
+  return;
+};
+
+const deleteComment = (req, res) => {
   const postId = Number(req.params.postId);
   const commentId = Number(req.params.commentId);
-
   const comment = getComment({ postId, commentId });
 
   if (!comment) {
@@ -188,6 +195,7 @@ function deleteComment(req, res) {
       .status(400)
       .json({ status: 400, message: "invalid_post_id", data: null });
   }
+
   if (!commentId) {
     res
       .status(400)
@@ -201,9 +209,12 @@ function deleteComment(req, res) {
       .status(500)
       .json({ status: 500, message: "internal_server_error", data: null });
   }
+
   res
     .status(200)
     .json({ status: 200, message: "delete_comment_success", data: null });
-}
+
+  return;
+};
 
 export default { getCommentList, postComment, patchComment, deleteComment };

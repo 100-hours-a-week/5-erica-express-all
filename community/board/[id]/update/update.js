@@ -4,9 +4,11 @@ const content = document.getElementById("boardContentInput");
 const postImage = document.getElementById("boardInputImage");
 
 const updateButton = document.querySelector(".updateButton");
+const backButton = document.querySelector(".beforeBtn");
+
 const reader = new FileReader();
 
-function onInputHandler() {
+const onInputHandler = () => {
   const title = document.getElementById("boardTitleInput").value.trim();
   const content = document.getElementById("boardContentInput").value.trim();
 
@@ -15,16 +17,17 @@ function onInputHandler() {
   } else {
     updateButton.style.backgroundColor = "";
   }
-}
+  return;
+};
 
 title.addEventListener("input", onInputHandler);
 content.addEventListener("input", onInputHandler);
 
-function read(post) {
+const read = (post) => {
   title.value = post.title;
   content.innerHTML = post.content;
   postImage.src = post.postImage;
-}
+};
 
 (async () => {
   const postResponse = await fetch(
@@ -74,8 +77,6 @@ function read(post) {
     }
   });
 })();
-
-const backButton = document.querySelector(".beforeBtn");
 
 backButton.addEventListener("click", () => {
   if (urlPostId) {

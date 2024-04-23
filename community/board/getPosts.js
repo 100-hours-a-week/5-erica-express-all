@@ -1,6 +1,6 @@
-function createPosts(post) {
+const createPosts = (post) => {
   if (post.title.length > 26) {
-    postTitle = post.title.slice(0, 26) + "...";
+    postTitle = `${post.title.slice(0, 26)} ...`;
   } else {
     postTitle = post.title;
   }
@@ -32,7 +32,7 @@ function createPosts(post) {
     </div>`;
 
   document.querySelector(".wrapper").appendChild(boardContainer);
-}
+};
 
 (async () => {
   const response = await fetch("http://localhost:8000/api/posts");

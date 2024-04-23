@@ -9,15 +9,15 @@ let postNum = posts.length;
 
 //post관련 서비스
 //게시물 상세 조회 로직
-export function getPost(id) {
+export const getPost = (id) => {
   return posts.find((post) => post.postId === id && post.deleted_at === null);
-}
+};
 
-function getPosts() {
+const getPosts = () => {
   return posts.filter((post) => post.deleted_at === null);
-}
+};
 
-function checkIsPost(id) {
+const checkIsPost = (id) => {
   const post = posts.find(
     (post) => post.postId === id && post.deleted_at === null
   );
@@ -25,9 +25,9 @@ function checkIsPost(id) {
     return false;
   }
   return true;
-}
+};
 
-function getLocalDateTime() {
+const getLocalDateTime = () => {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
@@ -38,11 +38,11 @@ function getLocalDateTime() {
 
   const localDateTime = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
   return localDateTime;
-}
+};
 
 //게시물 이미지 저장
 //이미지 저장
-function postImage(image) {
+const postImage = (image) => {
   const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
   if (!matches || matches.length !== 3) {
     console.log("Wrong Image Type");
@@ -66,10 +66,10 @@ function postImage(image) {
 
   const imageUrl = `http://localhost:8000/images/post/${imageName}`;
   return imageUrl;
-}
+};
 
 //게시물 작성 로직
-function registerPost(data) {
+const registerPost = (data) => {
   const user = checkUser(data.userId);
   const date = getLocalDateTime();
   const postId = postNum + 1;
@@ -93,10 +93,10 @@ function registerPost(data) {
   posts.push(newPost);
 
   return postId;
-}
+};
 
 //게시물 수정 로직
-function updatePost(data) {
+const updatePost = (data) => {
   const postId = data.id;
   const title = data.title;
   const content = data.content;
@@ -115,29 +115,29 @@ function updatePost(data) {
   }
 
   return postId;
-}
+};
 
 //게시물 삭제 로직
-function erasePost(id) {
+const erasePost = (id) => {
   const date = getLocalDateTime();
   posts[id - 1].deleted_at = date;
   return true;
-}
+};
 
 //--------------------------------------------------------
 //실제 controller
-function getPostList(req, res) {
+const getPostList = (req, res) => {
   const posts = getPosts();
   if (posts.length === 0) {
     res
       .status(404)
       .json({ status: 404, message: "not_a_single_post", data: null });
   }
-
   res.status(200).json({ status: 200, message: null, data: posts });
-}
+  return;
+};
 
-function getOnePost(req, res) {
+const getOnePost = (req, res) => {
   const id = Number(req.params.id);
   if (!id) {
     res
@@ -153,13 +153,15 @@ function getOnePost(req, res) {
   }
 
   res.status(200).json({ status: 200, message: null, data: post });
-}
+  return;
+};
 
-function postPost(req, res) {
+const postPost = (req, res) => {
   const userId = Number(req.body.userId);
   const title = req.body.title;
   const content = req.body.content;
   const postImageSrc = req.body.postImage;
+  let post_server_url = "";
 
   if (!userId) {
     res
@@ -177,7 +179,6 @@ function postPost(req, res) {
       .json({ status: 400, message: "invalid_post_content", data: null });
   }
 
-  let post_server_url = "";
   if (postImageSrc) {
     post_server_url = postImage(postImageSrc);
   }
@@ -200,14 +201,17 @@ function postPost(req, res) {
     message: "write_post_success",
     data: { postId },
   });
-}
 
-function patchPost(req, res) {
+  return;
+};
+
+const patchPost = (req, res) => {
   const id = Number(req.params.id);
   // const userId = req.body.userId;
   const title = req.body.title;
   const content = req.body.content;
   const postImageInput = req.body.postImage;
+  let post_server_url = "";
 
   //TODO: user 검증
   // if (!userId) {
@@ -238,7 +242,6 @@ function patchPost(req, res) {
       .json({ status: 400, message: "invalid_post_id", data: null });
   }
 
-  let post_server_url = "";
   if (postImageInput) {
     post_server_url = postImage(postImageInput);
   }
@@ -260,9 +263,11 @@ function patchPost(req, res) {
   res
     .status(200)
     .json({ status: 200, message: "update_post_success", data: { postId } });
-}
 
-function deletePost(req, res) {
+  return;
+};
+
+const deletePost = (req, res) => {
   const id = Number(req.params.id);
   if (!id) {
     res
@@ -287,7 +292,9 @@ function deletePost(req, res) {
   res
     .status(200)
     .json({ status: 200, message: "delete_post_success", data: null });
-}
+
+  return;
+};
 
 export const postController = {
   getPostList,
