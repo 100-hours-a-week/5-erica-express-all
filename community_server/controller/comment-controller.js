@@ -40,6 +40,18 @@ const getComments = (postId) => {
   return commentList;
 };
 
+const checkIsOwner = (data) => {
+  const comment = comments.find(
+    (comment) => comment.commentId === data.commentId
+  );
+
+  if (comment.userId !== data.userId || !comment) {
+    return false;
+  }
+
+  return true;
+};
+
 const registerComments = (data) => {
   const user = checkUser(data.userId);
   const commentId = commentNum + 1;
@@ -217,4 +229,21 @@ const deleteComment = (req, res) => {
   return;
 };
 
-export default { getCommentList, postComment, patchComment, deleteComment };
+const isOwner = (req, res) => {
+  const id = Number(req.body.commentId);
+  const userId = Number(req.body.userId);
+  const check = checkIsOwner({ userId, commentId: id });
+  if (!check) {
+    res.status(403).json({ status: 403, message: "not_allowed", data: null });
+  }
+
+  res.status(200).json({ status: 200, message: "is_owner", data: null });
+};
+
+export default {
+  getCommentList,
+  postComment,
+  patchComment,
+  deleteComment,
+  isOwner,
+};

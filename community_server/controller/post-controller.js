@@ -13,6 +13,14 @@ export const getPost = (id) => {
   return posts.find((post) => post.postId === id && post.deleted_at === null);
 };
 
+const checkIsOwner = (data) => {
+  const post = getPost(data.postId);
+  if (post.userId !== data.userId) {
+    return false;
+  }
+  return true;
+};
+
 const getPosts = () => {
   return posts.filter((post) => post.deleted_at === null);
 };
@@ -156,6 +164,22 @@ const getOnePost = (req, res) => {
   return;
 };
 
+const getPostImage = (req, res) => {
+  const postId = Number(req.params.postId);
+
+  if (!postId) {
+    res
+      .status(404)
+      .json({ status: 404, message: "invalid_post_id", data: null });
+  }
+
+  const post_image = getPostData(postId);
+
+  res
+    .status(200)
+    .json({ status: 200, message: "load_image_success", data: { post_image } });
+};
+
 const postPost = (req, res) => {
   const userId = Number(req.body.userId);
   const title = req.body.title;
@@ -207,18 +231,10 @@ const postPost = (req, res) => {
 
 const patchPost = (req, res) => {
   const id = Number(req.params.id);
-  // const userId = req.body.userId;
   const title = req.body.title;
   const content = req.body.content;
   const postImageInput = req.body.postImage;
   let post_server_url = "";
-
-  //TODO: user 검증
-  // if (!userId) {
-  //   res
-  //     .status(400)
-  //     .json({ status: 400, message: "invalid_user_id", data: null });
-  // }
 
   const post = checkIsPost(id);
 
@@ -296,10 +312,24 @@ const deletePost = (req, res) => {
   return;
 };
 
+const isOwner = (req, res) => {
+  const id = Number(req.body.postId);
+  const userId = Number(req.body.userId);
+  const check = checkIsOwner({ userId, postId: id });
+  if (!check) {
+    console.log("403 error");
+    res.status(403).json({ status: 403, message: "not_allowed", data: null });
+  }
+
+  res.status(200).json({ status: 200, message: "is_owner", data: null });
+};
+
 export const postController = {
   getPostList,
   getOnePost,
   postPost,
   patchPost,
   deletePost,
+  isOwner,
+  getPostImage,
 };

@@ -15,4 +15,7 @@ router.patch("/:postId/comments/:commentId", commentController.patchComment);
 //댓글 삭제
 router.delete("/:postId/comments/:commentId", commentController.deleteComment);
 
+//댓글 작성자 확인
+router.post("/:postId/comments/checkOwner", commentController.isOwner);
+
 export default router;

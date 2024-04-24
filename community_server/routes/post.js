@@ -18,4 +18,7 @@ router.patch("/:id", postController.patchPost);
 //게시물 삭제
 router.delete("/:id", postController.deletePost);
 
+//게시물 작성자 비교
+router.post("/checkOwner", postController.isOwner);
+
 export default router;

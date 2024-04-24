@@ -362,6 +362,17 @@ const duplicateEmail = (req, res) => {
 
 const duplicateNickname = (req, res) => {
   const nickname = req.params.nickname;
+  const userId = Number(req.body.userId) ?? null;
+
+  if (userId) {
+    const user = checkUser(userId);
+    if (user.nickname === nickname) {
+      res
+        .status(200)
+        .json({ status: 200, message: "same_nickname", data: null });
+      return;
+    }
+  }
 
   const isExist = checkUserNickname(nickname);
 

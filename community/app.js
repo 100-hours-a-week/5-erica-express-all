@@ -6,7 +6,7 @@ const app = express();
 // 웹 서버가 사용할 포트 번호를 정의합니다.
 const port = 3000;
 const __dirname = path.resolve();
-app.use(express.static(__dirname));
+app.use(express.static(__dirname + "/"));
 
 /**
  * 루트 경로('/')에 대한 GET 요청을 처리
@@ -19,57 +19,52 @@ app.get("/", (req, res) => {
 });
 
 app.get("/signUp", (req, res) => {
-  const filePath = path.join(__dirname, "signUp/index.html");
+  const filePath = path.join(__dirname, "public/user/signUp.html");
   res.sendFile(filePath);
 });
 
 app.get("/images", (req, res) => {
-  const filePath = path.join(__dirname, "images");
-  res.sendFile(filePath);
-});
-
-app.get("/user", (req, res) => {
-  const filePath = path.join(__dirname, "user/index.html");
-  res.sendFile(filePath);
-});
-
-app.get("/user/password", (req, res) => {
-  const filePath = path.join(__dirname, "user/password/index.html");
-  res.sendFile(filePath);
-});
-
-app.get("/user/update", (req, res) => {
-  const filePath = path.join(__dirname, "user/update/index.html");
-  res.sendFile(filePath);
-});
-
-app.get("/board", (req, res) => {
-  const filePath = path.join(__dirname, "board/index.html");
-  res.sendFile(filePath);
-});
-
-app.get("/board/[id]", (req, res) => {
-  const filePath = path.join(__dirname, "board/[id]/index.html");
-  res.sendFile(filePath);
-});
-
-app.get("/board/[id]/update", (req, res) => {
-  const filePath = path.join(__dirname, "board/[id]/update/index.html");
-  res.sendFile(filePath);
-});
-
-app.get("/board/[id]/modal", (req, res) => {
-  const filePath = path.join(__dirname, "board/[id]/modal/index.html");
+  const filePath = path.join(__dirname, "src/images/");
   res.sendFile(filePath);
 });
 
 app.get("/board/write", (req, res) => {
-  const filePath = path.join(__dirname, "board/write/index.html");
+  const filePath = path.join(__dirname, "public/board/addPost.html");
+  res.sendFile(filePath);
+});
+
+app.get("/user/password", (req, res) => {
+  const filePath = path.join(__dirname, "public/user/password.html");
+  res.sendFile(filePath);
+});
+
+app.get("/user/update", (req, res) => {
+  const filePath = path.join(__dirname, "public/user/updateProfile.html");
+  res.sendFile(filePath);
+});
+
+app.get("/board", (req, res) => {
+  const filePath = path.join(__dirname, "public/board/posts.html");
+  res.sendFile(filePath);
+});
+
+app.get("/board/write", (req, res) => {
+  const filePath = path.join(__dirname, "public/board/updatePost.html");
+  res.sendFile(filePath);
+});
+
+app.get("/board/write", (req, res) => {
+  const filePath = path.join(__dirname, "public/board/addPost.html");
   res.sendFile(filePath);
 });
 
 app.get("/signup", (req, res) => {
-  const filePath = path.join(__dirname, "signUp");
+  const filePath = path.join(__dirname, "public/user/signUp.html");
+  res.sendFile(filePath);
+});
+
+app.get("/src/js", (req, res) => {
+  const filePath = path.join(__dirname, "src/js/");
   res.sendFile(filePath);
 });
 
