@@ -31,9 +31,12 @@ const readComments = (comment) => {
 };
 
 (async () => {
-  const response = await fetch(
-    `http://localhost:8000/api/posts/${urlPostId}/comments`
-  );
+  const response = await fetch(`${backHost}/api/posts/${urlPostId}/comments`, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "ngrok-skip-browser-warning": "69420",
+    },
+  });
 
   const responseData = await response.json();
 
@@ -63,9 +66,11 @@ const readComments = (comment) => {
       );
 
       const checkData = await fetch(
-        `http://localhost:8000/api/posts/${urlPostId}/comments/checkOwner`,
+        `${backHost}/api/posts/${urlPostId}/comments/checkOwner`,
         {
           headers: {
+            "Access-Control-Allow-Origin": "*",
+            "ngrok-skip-browser-warning": "69420",
             "Content-Type": "application/json",
             Accept: "application/json",
           },
@@ -101,9 +106,11 @@ const readComments = (comment) => {
       );
 
       const checkData = await fetch(
-        `http://localhost:8000/api/posts/${urlPostId}/comments/checkOwner`,
+        `${backHost}/api/posts/${urlPostId}/comments/checkOwner`,
         {
           headers: {
+            "Access-Control-Allow-Origin": "*",
+            "ngrok-skip-browser-warning": "69420",
             "Content-Type": "application/json",
             Accept: "application/json",
           },
@@ -139,9 +146,11 @@ updateButton.addEventListener("click", async () => {
 
   const updateText = document.getElementById("commentInput").value;
   const response = await fetch(
-    `http://localhost:8000/api/posts/${urlPostId}/comments/${targetCommentId}`,
+    `${backHost}/api/posts/${urlPostId}/comments/${targetCommentId}`,
     {
       headers: {
+        "Access-Control-Allow-Origin": "*",
+        "ngrok-skip-browser-warning": "69420",
         "Content-Type": "application/json",
         Accept: "application/json",
       },
@@ -170,9 +179,11 @@ document
   .querySelector(".commentDeleteModal .submitButton")
   .addEventListener("click", async () => {
     const response = await fetch(
-      `http://localhost:8000/api/posts/${urlPostId}/comments/${targetCommentId}`,
+      `${backHost}/api/posts/${urlPostId}/comments/${targetCommentId}`,
       {
         headers: {
+          "Access-Control-Allow-Origin": "*",
+          "ngrok-skip-browser-warning": "69420",
           "Content-Type": "application/json",
           Accept: "application/json",
         },

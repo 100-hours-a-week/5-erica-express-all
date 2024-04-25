@@ -12,7 +12,9 @@ import bodyParser from "body-parser";
 const app = express();
 const server = http.createServer(app);
 const port = 8000;
-const corsOptions = { origin: "http://localhost:3000" };
+const corsOptions = {
+  origin: "*",
+};
 
 app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: true }));

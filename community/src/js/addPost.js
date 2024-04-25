@@ -32,8 +32,10 @@ writeButton.addEventListener("click", async () => {
     return;
   }
 
-  const response = await fetch("http://localhost:8000/api/posts", {
+  const response = await fetch(`${backHost}/api/posts`, {
     headers: {
+      "Access-Control-Allow-Origin": "*",
+      "ngrok-skip-browser-warning": "69420",
       "Content-Type": "application/json",
       Accept: "application/json",
     },

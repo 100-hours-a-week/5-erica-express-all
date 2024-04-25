@@ -48,12 +48,13 @@ const checkEmailValidation = async (email) => {
     return false;
   }
 
-  const isEmailDuplicate = await fetch(
-    `http://localhost:8000/api/users/email/${email}`,
-    {
-      method: "POST",
-    }
-  ).then(async (response) => {
+  const isEmailDuplicate = await fetch(`${backHost}/api/users/email/${email}`, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "ngrok-skip-browser-warning": "69420",
+    },
+    method: "POST",
+  }).then(async (response) => {
     const data = await response.json();
     if (data.status === 400) {
       return true;
@@ -129,8 +130,12 @@ const checkNicknameValidation = async (nickname) => {
 
   //닉네임이 중복일시
   const isNicknameDuplicate = await fetch(
-    `http://localhost:8000/api/users/nickname/${nickname}`,
+    `${backHost}/api/users/nickname/${nickname}`,
     {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "ngrok-skip-browser-warning": "69420",
+      },
       method: "POST",
     }
   ).then(async (response) => {
@@ -191,8 +196,10 @@ signUpButton.addEventListener("click", async () => {
     return;
   }
 
-  const response = await fetch("http://localhost:8000/api/users/signup", {
+  const response = await fetch(`${backHost}/api/users/signup`, {
     headers: {
+      "Access-Control-Allow-Origin": "*",
+      "ngrok-skip-browser-warning": "69420",
       "Content-Type": "application/json",
       Accept: "application/json",
     },

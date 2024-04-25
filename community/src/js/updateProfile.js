@@ -12,7 +12,12 @@ const reader = new FileReader();
 
 (async () => {
   console.log(userId);
-  const response = await fetch(`http://localhost:8000/api/users/${userId}`);
+  const response = await fetch(`${backHost}/api/users/${userId}`, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "ngrok-skip-browser-warning": "69420",
+    },
+  });
   const userData = await response.json();
 
   switch (userData.status) {
@@ -45,9 +50,10 @@ const reader = new FileReader();
 
     //닉네임 중복 검사 in 서버
     const response = await fetch(
-      `http://localhost:8000/api/users/nickname/${nicknameInput.value}`,
+      `${backHost}/api/users/nickname/${nicknameInput.value}`,
       {
         headers: {
+          "Access-Control-Allow-Origin": "*",
           "Content-Type": "application/json",
           Accept: "application/json",
         },
@@ -68,21 +74,20 @@ const reader = new FileReader();
         break;
     }
 
-    const updateResponse = await fetch(
-      `http://localhost:8000/api/users/${userId}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        method: "PATCH",
-        //TODO: postimage url 다시 생성
-        body: JSON.stringify({
-          nickname: nicknameInput.value,
-          profile_image: profileImageShow.src,
-        }),
-      }
-    );
+    const updateResponse = await fetch(`${backHost}/api/users/${userId}`, {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "ngrok-skip-browser-warning": "69420",
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      method: "PATCH",
+      //TODO: postimage url 다시 생성
+      body: JSON.stringify({
+        nickname: nicknameInput.value,
+        profile_image: profileImageShow.src,
+      }),
+    });
 
     const updateData = await updateResponse.json();
 
@@ -128,16 +133,15 @@ document
   .addEventListener("click", async () => {
     deleteModal.style.display = "none";
     enableScroll();
-    const deleteResponse = await fetch(
-      `http://localhost:8000/api/users/${userId}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        method: "DELETE",
-      }
-    );
+    const deleteResponse = await fetch(`${backHost}/api/users/${userId}`, {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "ngrok-skip-browser-warning": "69420",
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      method: "DELETE",
+    });
     const deleteData = await deleteResponse.json();
     switch (deleteData.status) {
       case 200:

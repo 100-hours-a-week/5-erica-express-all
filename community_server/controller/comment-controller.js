@@ -104,6 +104,12 @@ const getCommentList = (req, res) => {
       .json({ status: 404, message: "not_a_single_comment", data: null });
   }
 
+  commentList.forEach((comment) => {
+    comment.profile_image = comment.profile_image.replace(
+      "http://localhost:8000",
+      `https://${req.headers.host}`
+    );
+  });
   res.status(200).json({ status: 200, message: null, data: commentList });
   return;
 };

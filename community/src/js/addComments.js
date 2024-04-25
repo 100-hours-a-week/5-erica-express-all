@@ -19,21 +19,20 @@ commentRegisterButton.addEventListener("click", async () => {
     return;
   }
 
-  const response = await fetch(
-    `http://localhost:8000/api/posts/${urlPostId}/comments`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      method: "POST",
-      body: JSON.stringify({
-        postId: urlPostId,
-        userId,
-        comment: commentInput.value,
-      }),
-    }
-  );
+  const response = await fetch(`${backHost}/api/posts/${urlPostId}/comments`, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "ngrok-skip-browser-warning": "69420",
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    method: "POST",
+    body: JSON.stringify({
+      postId: urlPostId,
+      userId,
+      comment: commentInput.value,
+    }),
+  });
 
   const responseData = await response.json();
 

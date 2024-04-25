@@ -20,9 +20,11 @@ updateButton.addEventListener("click", async () => {
   const password = passwordInput.value;
 
   const updateResponse = await fetch(
-    `http://localhost:8000/api/users/${userId}/password`,
+    `${backHost}/api/users/${userId}/password`,
     {
       headers: {
+        "Access-Control-Allow-Origin": "*",
+        "ngrok-skip-browser-warning": "69420",
         "Content-Type": "application/json",
         Accept: "application/json",
       },

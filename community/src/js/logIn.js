@@ -43,10 +43,12 @@ logInButton.addEventListener("click", async () => {
     return;
   }
 
-  const response = await fetch("http://localhost:8000/api/users/login", {
+  const response = await fetch(`${backHost}/api/users/login`, {
     headers: {
+      "Access-Control-Allow-Origin": "*",
       "Content-Type": "application/json",
       Accept: "application/json",
+      "ngrok-skip-browser-warning": "69420",
     },
     method: "POST",
     body: JSON.stringify({ email, password }),

@@ -24,7 +24,13 @@ const profileImage = document.querySelector(".profileImage");
     return;
   }
 
-  const response = await fetch(`http://localhost:8000/api/users/${userId}`);
+  const response = await fetch(`${backHost}/api/users/${userId}`, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "ngrok-skip-browser-warning": "69420",
+    },
+  });
+
   const responseData = await response.json();
 
   if (!responseData.data || responseData.data.length === 0) {

@@ -73,17 +73,16 @@ const readPost = (post) => {
   const updatePostButton = document.querySelector(".updateBoard");
 
   updatePostButton.addEventListener("click", async () => {
-    const checkData = await fetch(
-      "http://localhost:8000/api/posts/checkOwner",
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({ userId, postId: post.postId }),
-      }
-    );
+    const checkData = await fetch(`${backHost}/api/posts/checkOwner`, {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "ngrok-skip-browser-warning": "69420",
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify({ userId, postId: post.postId }),
+    });
 
     const checkResponseData = await checkData.json();
 
@@ -96,17 +95,16 @@ const readPost = (post) => {
   });
 
   deletePostButton.addEventListener("click", async () => {
-    const checkData = await fetch(
-      "http://localhost:8000/api/posts/checkOwner",
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({ userId, postId: post.postId }),
-      }
-    );
+    const checkData = await fetch(`${backHost}/api/posts/checkOwner`, {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "ngrok-skip-browser-warning": "69420",
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify({ userId, postId: post.postId }),
+    });
 
     const checkResponseData = await checkData.json();
 
@@ -124,16 +122,15 @@ const readPost = (post) => {
   document
     .querySelector(".boardDeleteModal .submitButton")
     .addEventListener("click", async () => {
-      const deleteResponse = await fetch(
-        `http://localhost:8000/api/posts/${urlPostId}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          method: "DELETE",
-        }
-      );
+      const deleteResponse = await fetch(`${backHost}/api/posts/${urlPostId}`, {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "ngrok-skip-browser-warning": "69420",
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        method: "DELETE",
+      });
 
       const responseData = await deleteResponse.json();
 
@@ -162,7 +159,12 @@ const readPost = (post) => {
 };
 
 (async () => {
-  const response = await fetch(`http://localhost:8000/api/posts/${urlPostId}`);
+  const response = await fetch(`${backHost}/api/posts/${urlPostId}`, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "ngrok-skip-browser-warning": "69420",
+    },
+  });
   const responseData = await response.json();
 
   switch (responseData.status) {

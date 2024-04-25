@@ -159,6 +159,12 @@ const postImage = (image) => {
 //--------------------------------------------------------
 //실제 user controller
 const getUserList = (req, res) => {
+  users.forEach((user) => {
+    user.profile_image.replace(
+      "http://localhost:8000",
+      `https://${req.headers.host}`
+    );
+  });
   res.json(users);
   return;
 };
@@ -170,12 +176,19 @@ const getUser = (req, res) => {
       .status(400)
       .json({ status: 404, message: "invalid_user_id", data: null });
   }
+
   const user = checkUser(userId);
+
   if (!user) {
     res
       .status(404)
       .json({ status: 404, message: "not_fount_user", data: null });
   }
+
+  user.profile_image = user.profile_image.replace(
+    "http://localhost:8000",
+    `https://${req.headers.host}`
+  );
 
   if (user) {
     res.status(200).json({ status: 200, message: null, data: user });
@@ -248,12 +261,17 @@ const patchUserInfo = (req, res) => {
   const userId = Number(req.params.userId);
   const nickname = req.body.nickname;
   const profile_image = req.body.profile_image;
+  let user_server_url = "";
 
   if (!userId) {
     res
       .status(400)
       .json({ status: 400, message: "invalid_user_id", data: null });
     return;
+  }
+
+  if (profile_image) {
+    user_server_url = postImage(profile_image);
   }
 
   if (!checkUserId(userId)) {
@@ -270,7 +288,11 @@ const patchUserInfo = (req, res) => {
     return;
   }
 
-  const success = updateUserProfile({ userId, nickname, profile_image });
+  const success = updateUserProfile({
+    userId,
+    nickname,
+    profile_image: user_server_url,
+  });
 
   res
     .status(201)

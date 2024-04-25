@@ -33,9 +33,14 @@ const read = (post) => {
 };
 
 (async () => {
-  const postResponse = await fetch(
-    `http://localhost:8000/api/posts/${urlPostId}`
-  );
+  const postResponse = await fetch(`${backHost}/api/posts/${urlPostId}`, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "ngrok-skip-browser-warning": "69420",
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+  });
   const postResponseData = await postResponse.json();
 
   switch (postResponseData.status) {
@@ -53,21 +58,20 @@ const read = (post) => {
       document.querySelector(".helperText").style.display = "block";
       return;
     }
-    const response = await fetch(
-      `http://localhost:8000/api/posts/${urlPostId}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        method: "PATCH",
-        body: JSON.stringify({
-          title: title.value,
-          content: content.value,
-          postImage: postImage.src,
-        }),
-      }
-    );
+    const response = await fetch(`${backHost}/api/posts/${urlPostId}`, {
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "ngrok-skip-browser-warning": "69420",
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      method: "PATCH",
+      body: JSON.stringify({
+        title: title.value,
+        content: content.value,
+        postImage: postImage.src,
+      }),
+    });
 
     switch (response.status) {
       case 200:
