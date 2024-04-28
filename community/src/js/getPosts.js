@@ -66,12 +66,16 @@ const createPosts = (post) => {
 
   switch (responseData.status) {
     case 200:
+      if (responseData.data.length === 0) {
+        alert("게시물이 없습니다. 게시물을 작성하십시오");
+        location.replace("/board/write");
+      }
       responseData.data.forEach((post) => {
         createPosts(post);
       });
       return;
     default:
-      alert("게시물이 없습니다");
-      location.replace("/board/write");
+      alert("서버 오류");
+      return;
   }
 })();
