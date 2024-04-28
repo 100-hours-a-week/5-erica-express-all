@@ -4,22 +4,22 @@ import { userController } from "../controller/user-controller.js";
 const router = express.Router();
 
 //전체 유저 목록
-router.get("/", userController.getUserList);
+router.get("/", userController.getUsers);
 
 //userId 회원 조회
 router.get("/:userId", userController.getUser);
 
 //회원가입
-router.post("/signup", userController.postUser);
+router.post("/signup", userController.addUser);
 
 //로그인
-router.post("/login", userController.postLongIn);
+router.post("/login", userController.logInUser);
 
 //회원정보 변경
-router.patch("/:userId", userController.patchUserInfo);
+router.patch("/:userId", userController.updateUserProfile);
 
 //비밀번호 변경
-router.patch("/:userId/password", userController.patchUserPassword);
+router.patch("/:userId/password", userController.updateUserpassword);
 
 //유저 삭제
 router.delete("/:id", userController.deleteUser);
@@ -31,7 +31,7 @@ router.post("/email/:email", userController.duplicateEmail);
 router.post("/nickname/:nickname", userController.duplicateNickname);
 
 //이미지 업로드
-router.post("/upload", userController.postImage);
+// router.post("/upload", userController.postImage);
 
 //TODO: 로그인 상태 확인
 
