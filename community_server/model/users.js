@@ -9,7 +9,7 @@ const __dirname = path.resolve();
 let userNum = users.length;
 
 //userId 유효성 조회 로직
-const checkUserId = (userId) => {
+export const checkUserIdModel = (userId) => {
   const user = users.find(
     (user) => user.userId === userId && user.deleted_at === null
   );
@@ -22,14 +22,14 @@ const checkUserId = (userId) => {
   return !user ? false : true;
 };
 
-const checkUser = (userId) => {
+export const checkUserModel = (userId) => {
   const user = users.find(
     (user) => user.userId === userId && user.deleted_at === null
   );
   return user;
 };
 
-const checkUserNickname = (nickname) => {
+export const checkUserNicknameModel = (nickname) => {
   const user = users.find(
     (user) => user.nickname === nickname && user.deleted_at === null
   );
@@ -42,7 +42,7 @@ const checkUserNickname = (nickname) => {
   return user ? true : false;
 };
 
-const checkUserEmail = (email) => {
+export const checkUserEmailModel = (email) => {
   const user = users.find(
     (user) => user.email === email && user.deleted_at === null
   );
@@ -55,7 +55,7 @@ const checkUserEmail = (email) => {
 };
 
 //유저 등록 로직
-const registerUser = (data) => {
+export const addUserModel = (data) => {
   //data 형식: { email, nickname, password, profile_image }
   const userId = userNum + 1;
   const date = getLocalDateTime();
@@ -76,7 +76,7 @@ const registerUser = (data) => {
 };
 
 //유저 로그인 로직 -> 유저 아이디 반환
-const logInUser = (email, password) => {
+export const logInUserModel = (email, password) => {
   const user = users.find(
     (user) => user.email === email && user.deleted_at === null
   );
@@ -90,7 +90,7 @@ const logInUser = (email, password) => {
 };
 
 //유저 정보 수정 로직
-const updateUserProfile = (data) => {
+export const updateUserProfileModel = (data) => {
   const { userId, nickname, profile_image } = data;
 
   const userIndex = users.findIndex(
@@ -113,7 +113,7 @@ const updateUserProfile = (data) => {
 };
 
 //유저 비밀번호 수정 로직
-const updateUserPassword = (data) => {
+export const updateUserPasswordModel = (data) => {
   const { userId, password } = data;
 
   const userIndex = users.findIndex(
@@ -130,7 +130,7 @@ const updateUserPassword = (data) => {
 };
 
 //유저 회원탈퇴 로직
-const eraseUser = (id) => {
+export const deleteUserModel = (id) => {
   if (!id) {
     return false;
   }
@@ -145,7 +145,7 @@ const eraseUser = (id) => {
 };
 
 //이미지 저장
-const postImage = (image) => {
+export const addUserImageModel = (image) => {
   const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
   if (!matches || matches.length !== 3) {
     return null;
@@ -167,17 +167,4 @@ const postImage = (image) => {
 
   const imageUrl = `http://localhost:8000/images/profile/${imageName}`;
   return imageUrl;
-};
-
-export {
-  checkUser,
-  checkUserId,
-  checkUserEmail,
-  checkUserNickname,
-  registerUser,
-  logInUser,
-  updateUserProfile,
-  updateUserPassword,
-  eraseUser,
-  postImage,
 };

@@ -1,4 +1,4 @@
-import { checkUser } from "./users.js";
+import { checkUserModel } from "./users.js";
 import path from "path";
 import fs from "fs";
 import { getLocalDateTime } from "../tools/dataUtils.js";
@@ -10,12 +10,12 @@ let postNum = posts.length;
 
 //post관련 서비스
 //게시물 상세 조회 로직
-const getPost = (id) => {
+export const getPostModel = (id) => {
   return posts.find((post) => post.postId === id && post.deleted_at === null);
 };
 
-const checkIsOwner = (data) => {
-  const post = getPost(data.postId);
+export const checkPostOwnerModel = (data) => {
+  const post = getPostModel(data.postId);
   /*
    * true: 해당 글의 Owner임
    * fale: 해당 글의 Owner가 아님
@@ -23,24 +23,13 @@ const checkIsOwner = (data) => {
   return post.userId !== data.userId ? false : true;
 };
 
-const getPosts = () => {
+export const getPostsModel = () => {
   return posts.filter((post) => post.deleted_at === null);
-};
-
-const checkIsPost = (id) => {
-  const post = posts.find(
-    (post) => post.postId === id && post.deleted_at === null
-  );
-  /*
-   * true: 해당 id를 가진 post가 존재함
-   * false: 해당 id를 가진 post가 존재하지 않음
-   */
-  return !post ? false : true;
 };
 
 //게시물 이미지 저장
 //이미지 저장
-const postImage = (image) => {
+export const addPostImageModel = (image) => {
   const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
   if (!matches || matches.length !== 3) {
     console.log("Wrong Image Type");
@@ -67,8 +56,8 @@ const postImage = (image) => {
 };
 
 //게시물 작성 로직
-const registerPost = (data) => {
-  const user = checkUser(data.userId);
+export const addPostModel = (data) => {
+  const user = checkUserModel(data.userId);
   const date = getLocalDateTime();
   const postId = postNum + 1;
 
@@ -94,7 +83,7 @@ const registerPost = (data) => {
 };
 
 //게시물 수정 로직
-const updatePost = (data) => {
+export const updatePostModel = (data) => {
   const { postId, title, content, postImage } = data;
 
   const postIndex = posts.findIndex(
@@ -117,19 +106,8 @@ const updatePost = (data) => {
 };
 
 //게시물 삭제 로직
-const erasePost = (id) => {
+export const deletePostModel = (id) => {
   const date = getLocalDateTime();
   posts[id - 1].deleted_at = date;
   return true;
-};
-
-export {
-  getPost,
-  checkIsOwner,
-  getPosts,
-  checkIsPost,
-  postImage,
-  registerPost,
-  updatePost,
-  erasePost,
 };
