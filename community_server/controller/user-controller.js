@@ -159,12 +159,13 @@ const postImage = (image) => {
 //--------------------------------------------------------
 //실제 user controller
 const getUserList = (req, res) => {
-  users.forEach((user) => {
-    user.profile_image.replace(
-      "http://localhost:8000",
-      `https://${req.headers.host}`
-    );
-  });
+  //TODO: 서버로 띄울 시 활셩화 필요
+  // users.forEach((user) => {
+  //   user.profile_image = user.profile_image.replace(
+  //     "http://localhost:8000",
+  //     `https://${req.headers.host}`
+  //   );
+  // });
   res.json(users);
   return;
 };
@@ -185,10 +186,11 @@ const getUser = (req, res) => {
       .json({ status: 404, message: "not_fount_user", data: null });
   }
 
-  user.profile_image = user.profile_image.replace(
-    "http://localhost:8000",
-    `https://${req.headers.host}`
-  );
+  //TODO: 서버로 띄울 시 활셩화 필요
+  // user.profile_image = user.profile_image.replace(
+  //   "http://localhost:8000",
+  //   `https://${req.headers.host}`
+  // );
 
   if (user) {
     res.status(200).json({ status: 200, message: null, data: user });
@@ -270,8 +272,13 @@ const patchUserInfo = (req, res) => {
     return;
   }
 
-  if (profile_image) {
+  if (!profile_image.includes(req.headers.host)) {
     user_server_url = postImage(profile_image);
+  } else {
+    user_server_url = profile_image.replace(
+      req.headers.host,
+      "http://localhost:8080"
+    );
   }
 
   if (!checkUserId(userId)) {
@@ -281,7 +288,7 @@ const patchUserInfo = (req, res) => {
     return;
   }
 
-  if (!nickname && !profile_image) {
+  if (!checkUserId(userId) && !profile_image) {
     res
       .status(500)
       .json({ status: 500, message: "internal_server_error", data: null });
@@ -293,6 +300,13 @@ const patchUserInfo = (req, res) => {
     nickname,
     profile_image: user_server_url,
   });
+
+  if (!success) {
+    res
+      .status(500)
+      .json({ status: 500, message: "internal_server_error", data: null });
+    return;
+  }
 
   res
     .status(201)

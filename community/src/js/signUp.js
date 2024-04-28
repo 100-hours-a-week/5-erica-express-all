@@ -196,6 +196,8 @@ signUpButton.addEventListener("click", async () => {
     return;
   }
 
+  signUpButton.style.backgroundColor = "#7f6aee";
+
   const response = await fetch(`${backHost}/api/users/signup`, {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -231,6 +233,7 @@ signUpButton.addEventListener("click", async () => {
       }, 1000);
       return;
   }
+  signUpButton.style.backgroundColor = "";
 });
 
 //이미지 변경 시

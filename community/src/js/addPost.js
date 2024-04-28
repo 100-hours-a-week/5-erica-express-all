@@ -32,6 +32,8 @@ writeButton.addEventListener("click", async () => {
     return;
   }
 
+  writeButton.disabled = true;
+
   const response = await fetch(`${backHost}/api/posts`, {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -57,6 +59,7 @@ writeButton.addEventListener("click", async () => {
       return;
     default:
       alert("작성 오류");
+      writeButton.disabled = false;
       return;
   }
 });

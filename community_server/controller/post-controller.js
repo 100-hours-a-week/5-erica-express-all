@@ -142,16 +142,17 @@ const getPostList = (req, res) => {
       .json({ status: 404, message: "not_a_single_post", data: null });
   }
 
-  posts.forEach((post) => {
-    post.postImage = post.postImage.replace(
-      "http://localhost:8000",
-      `https://${req.headers.host}`
-    );
-    post.userImage = post.userImage.replace(
-      "http://localhost:8000",
-      `https://${req.headers.host}`
-    );
-  });
+  //TODO: 서버로 띄울 시 활셩화 필요
+  // posts.forEach((post) => {
+  //   post.postImage = post.postImage.replace(
+  //     "http://localhost:8000",
+  //     `https://${req.headers.host}`
+  //   );
+  //   post.userImage = post.userImage.replace(
+  //     "http://localhost:8000",
+  //     `https://${req.headers.host}`
+  //   );
+  // });
 
   res.status(200).json({ status: 200, message: null, data: posts });
   return;
@@ -173,10 +174,11 @@ const getOnePost = (req, res) => {
       .json({ status: 404, message: "cannot_found_post", data: null });
   }
 
-  post.postImage = post.postImage.replace(
-    "http://localhost:8000",
-    `https://${req.headers.host}`
-  );
+  //TODO: 서버로 띄울 시 활셩화 필요
+  // post.postImage = post.postImage.replace(
+  //   "http://localhost:8000",
+  //   `https://${req.headers.host}`
+  // );
 
   res.status(200).json({ status: 200, message: null, data: post });
   return;

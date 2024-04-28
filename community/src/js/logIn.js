@@ -43,6 +43,8 @@ logInButton.addEventListener("click", async () => {
     return;
   }
 
+  logInButton.disabled = true;
+
   const response = await fetch(`${backHost}/api/users/login`, {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -68,6 +70,7 @@ logInButton.addEventListener("click", async () => {
       return;
     default:
       alert("로그인 실패");
+      logInButton.disabled = false;
       return;
   }
 });

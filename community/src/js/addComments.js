@@ -19,6 +19,8 @@ commentRegisterButton.addEventListener("click", async () => {
     return;
   }
 
+  commentRegisterButton.disabled = true;
+
   const response = await fetch(`${backHost}/api/posts/${urlPostId}/comments`, {
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -40,9 +42,11 @@ commentRegisterButton.addEventListener("click", async () => {
     case 201:
       location.reload();
       alert("댓글이 등록됐습니다.");
+      commentRegisterButton.disabled = false;
       return;
     default:
       alert("댓글 작성 실패");
+      commentRegisterButton.disabled = false;
       return;
   }
 });

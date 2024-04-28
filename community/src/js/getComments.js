@@ -5,6 +5,7 @@ const writeButton = document.querySelector(".writeButton");
 const updateButton = document.querySelector(".updateButton");
 const urlPostId = Number(window.location.search.split("=")[1]);
 const userId = Number(sessionStorage.getItem("userId"));
+const commentInput = document.getElementById("commentInput");
 
 let targetCommentId = null;
 
@@ -135,6 +136,16 @@ const readComments = (comment) => {
       //댓글 작성란을 댓글 수정란으로 변경
       document.getElementById("commentInput").value =
         commentWrapper.querySelector(".commentBody").innerHTML;
+    });
+
+    commentInput.addEventListener("input", () => {
+      const comment = commentInput.value.trim();
+
+      if (comment) {
+        updateButton.style.backgroundColor = "#7f6aee";
+      } else {
+        updateButton.style.backgroundColor = "";
+      }
     });
   });
 })();

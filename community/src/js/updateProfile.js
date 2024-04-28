@@ -95,6 +95,9 @@ const reader = new FileReader();
       case 201:
         nicknameText.style.display = "none";
         toastMessage.style.display = "block";
+        setTimeout(() => {
+          toastMessage.style.display = "none";
+        }, 2000);
         alert("수정 완료");
         return;
       default:
