@@ -35,6 +35,11 @@ app.use(Sentry.Handlers.requestHandler());
 // TracingHandler creates a trace for every incoming request
 app.use(Sentry.Handlers.tracingHandler());
 
+app.use(cors(corsOptions));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.text());
+
 // All your controllers should live here
 app.get("/", function rootHandler(req, res) {
   res.end("Hello world!");
@@ -68,11 +73,6 @@ app.use("/api/test", (req, res) => {
 
 // The error handler must be registered before any other error middleware and after all controllers
 app.use(Sentry.Handlers.errorHandler());
-
-app.use(cors(corsOptions));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json({ limit: "50mb" }));
-app.use(express.text());
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
