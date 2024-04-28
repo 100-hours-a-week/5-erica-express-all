@@ -1,18 +1,17 @@
 import {
-  getPost,
-  checkIsOwner,
-  getPosts,
-  checkIsPost,
-  postImage,
-  registerPost,
-  updatePost,
-  erasePost,
+  getPostModel,
+  checkPostOwnerModel,
+  getPostsModel,
+  addPostImageModel,
+  addPostModel,
+  updatePostModel,
+  deletePostModel,
 } from "../model/posts.js";
 
 //--------------------------------------------------------
 //실제 controller
-const getPostList = (req, res) => {
-  const posts = getPosts();
+export const getPosts = (req, res) => {
+  const posts = getPostsModel();
 
   //TODO: 서버로 띄울 시 활셩화 필요
   // posts.forEach((post) => {
@@ -26,21 +25,21 @@ const getPostList = (req, res) => {
   //   );
   // });
 
-  res.status(200).json({ status: 200, message: null, data: posts });
+  return res.status(200).json({ status: 200, message: null, data: posts });
 };
 
-const getOnePost = (req, res) => {
+export const getPost = (req, res) => {
   const id = Number(req.params.id);
   if (!id) {
-    res
+    return res
       .status(400)
       .json({ status: 400, message: "invalid_post_id", data: null });
   }
 
-  const post = getPost(id);
+  const post = getPostModel(id);
 
   if (!post) {
-    res
+    return res
       .status(404)
       .json({ status: 404, message: "cannot_found_post", data: null });
   }
@@ -51,26 +50,26 @@ const getOnePost = (req, res) => {
   //   `https://${req.headers.host}`
   // );
 
-  res.status(200).json({ status: 200, message: null, data: post });
+  return res.status(200).json({ status: 200, message: null, data: post });
 };
 
-const getPostImage = (req, res) => {
+export const getPostImage = (req, res) => {
   const postId = Number(req.params.postId);
 
   if (!postId) {
-    res
+    return res
       .status(404)
       .json({ status: 404, message: "invalid_post_id", data: null });
   }
 
   const post_image = getPostData(postId);
 
-  res
+  return res
     .status(200)
     .json({ status: 200, message: "load_image_success", data: { post_image } });
 };
 
-const postPost = (req, res) => {
+export const addPost = (req, res) => {
   const userId = Number(req.body.userId);
   const title = req.body.title;
   const content = req.body.content;
@@ -78,26 +77,26 @@ const postPost = (req, res) => {
   let post_server_url = "";
 
   if (!userId) {
-    res
+    return res
       .status(400)
       .json({ status: 400, message: "invalid_user_id", data: null });
   }
   if (!title) {
-    res
+    return res
       .status(400)
       .json({ status: 400, message: "invalid_post_title", data: null });
   }
   if (!content) {
-    res
+    return res
       .status(400)
       .json({ status: 400, message: "invalid_post_content", data: null });
   }
 
   if (postImageSrc) {
-    post_server_url = postImage(postImageSrc);
+    post_server_url = addPostImageModel(postImageSrc);
   }
 
-  const postId = registerPost({
+  const postId = addPostModel({
     userId,
     title,
     content,
@@ -105,35 +104,35 @@ const postPost = (req, res) => {
   });
 
   if (!postId) {
-    res
+    return res
       .status(500)
       .json({ status: 500, message: "internal_server_error", data: null });
   }
 
-  res.status(201).json({
+  return res.status(201).json({
     status: 201,
     message: "write_post_success",
     data: { postId },
   });
 };
 
-const patchPost = (req, res) => {
+export const udpatePost = (req, res) => {
   const id = Number(req.params.id);
   const title = req.body.title;
   const content = req.body.content;
   const postImageInput = req.body.postImage;
   let post_server_url = "";
 
-  const post = checkIsPost(id);
+  const post = getPostModel(id);
 
   if (!post) {
-    res
+    return res
       .status(404)
       .json({ status: 404, message: "not_a_single_post", data: null });
   }
 
   if (!title && !content && !postImage) {
-    res.status(400).json({
+    return res.status(400).json({
       status: 400,
       message: "invalid_post_content_length",
       data: null,
@@ -141,79 +140,77 @@ const patchPost = (req, res) => {
   }
 
   if (!id) {
-    res
+    return res
       .status(400)
       .json({ status: 400, message: "invalid_post_id", data: null });
   }
 
   if (postImageInput) {
-    post_server_url = postImage(postImageInput);
+    post_server_url = updatePostModel(postImageInput);
   }
 
   if (post_server_url === -1) {
-    res
+    return res
       .status(500)
       .json({ status: 500, message: "internal_sever_error", data: null });
   }
 
-  const postId = updatePost({ id, title, content, postImage: post_server_url });
+  const postId = updatePostModel({
+    id,
+    title,
+    content,
+    postImage: post_server_url,
+  });
 
   if (!postId) {
-    res
+    return res
       .status(500)
       .json({ status: 500, message: "internal_sever_error", data: null });
   }
 
-  res
+  return res
     .status(200)
     .json({ status: 200, message: "update_post_success", data: { postId } });
 };
 
-const deletePost = (req, res) => {
+export const deletePost = (req, res) => {
   const id = Number(req.params.id);
   if (!id) {
-    res
+    return res
       .status(400)
       .json({ status: 400, message: "invalid_post_id", data: null });
   }
 
-  const post = getPost(id);
+  const post = getPostModel(id);
   if (!post) {
-    res
+    return res
       .status(404)
       .json({ status: 404, message: "not_a_single_post", data: null });
   }
 
-  const isSuccess = erasePost(id);
+  const isSuccess = deletePostModel(id);
   if (!isSuccess) {
-    res
+    return res
       .status(500)
       .json({ status: 500, message: "internal_sever_error", data: null });
   }
 
-  res
+  return res
     .status(200)
     .json({ status: 200, message: "delete_post_success", data: null });
 };
 
-const isOwner = (req, res) => {
+export const checkPostOwner = (req, res) => {
   const id = Number(req.body.postId);
   const userId = Number(req.body.userId);
-  const check = checkIsOwner({ userId, postId: id });
+  const check = checkPostOwnerModel({ userId, postId: id });
+
   if (!check) {
     console.log("403 error");
-    res.status(403).json({ status: 403, message: "not_allowed", data: null });
+    return res
+      .status(403)
+      .json({ status: 403, message: "not_allowed", data: null });
   }
 
-  res.status(200).json({ status: 200, message: "is_owner", data: null });
-};
-
-export const postController = {
-  getPostList,
-  getOnePost,
-  postPost,
-  patchPost,
-  deletePost,
-  isOwner,
-  getPostImage,
+  return res.status(200).json({ status: 200, message: "is_owner", data: null });
 };

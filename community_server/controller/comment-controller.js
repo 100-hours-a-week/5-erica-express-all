@@ -1,171 +1,159 @@
-import { getPost } from "../model/posts.js";
+import { getPostModel } from "../model/posts.js";
 import {
-  getComment,
-  getComments,
-  checkIsOwner,
-  registerComments,
-  updateComment,
-  eraseComment,
+  getCommentModel,
+  getCommentsModel,
+  checkCommentOwnerModel,
+  addCommentModel,
+  updateCommentModel,
+  deleteCommentModel,
 } from "../model/comments.js";
 
 //실제 controller 역할
-const getCommentList = (req, res) => {
+export const getComments = (req, res) => {
   const postId = Number(req.params.postId);
   if (!postId) {
-    res
+    return res
       .status(400)
       .json({ status: 400, message: "invalid_post_id", data: null });
   }
 
-  const commentList = getComments(postId);
+  const comments = getCommentsModel(postId);
 
   //TODO: 서버로 띄울 시 활셩화 필요
-  // commentList.forEach((comment) => {
+  // comments.forEach((comment) => {
   //   comment.profile_image = comment.profile_image.replace(
   //     "http://localhost:8000",
   //     `https://${req.headers.host}`
   //   );
   // });
-  res.status(200).json({ status: 200, message: null, data: commentList });
-  return;
+  return res.status(200).json({ status: 200, message: null, data: comments });
 };
 
-const postComment = (req, res) => {
+export const addComment = (req, res) => {
   const postId = Number(req.params.postId);
   const comment = req.body.comment;
   const userId = Number(req.body.userId);
 
   if (!postId) {
-    res
+    return res
       .status(400)
       .json({ status: 400, message: "invalid_post_id", data: null });
   }
 
-  const post = getPost(postId);
+  const post = getPostModel(postId);
   if (!post) {
-    res
+    return res
       .status(404)
       .json({ status: 404, message: "not_a_single_post", data: null });
   }
 
   if (!userId) {
-    res
+    return res
       .status(400)
       .json({ status: 400, message: "invalid_user_id", data: null });
   }
 
   if (!comment) {
-    res
+    return res
       .status(400)
       .json({ status: 400, message: "invalid_comment", data: null });
   }
 
-  const isSuccess = registerComments({ postId, userId, comment });
+  const isSuccess = addCommentModel({ postId, userId, comment });
 
   if (!isSuccess) {
-    res
+    return res
       .status(500)
       .json({ status: 500, message: "internal_sever_error", data: null });
   }
 
-  res
+  return res
     .status(201)
     .json({ status: 201, message: "write_comment_success", data: null });
-
-  return;
 };
 
-const patchComment = (req, res) => {
+export const updateComment = (req, res) => {
   const postId = Number(req.params.postId);
   const commentId = Number(req.params.commentId);
   const commentContent = req.body.comment;
-  const comment = getComment({ postId, commentId });
+  const comment = getCommentModel({ commentId, postId });
 
   if (!comment) {
-    res
+    return res
       .status(404)
       .json({ status: 404, message: "not_a_single_comment", data: null });
   }
 
   if (!postId) {
-    res
+    return res
       .status(400)
       .json({ status: 400, message: "invalid_post_id", data: null });
   }
 
   if (!commentId) {
-    res
+    return res
       .status(400)
       .json({ status: 400, message: "invalid_comment_id", data: null });
   }
 
-  const isSuccess = updateComment({ commentId, commentContent });
+  const isSuccess = updateCommentModel({ commentId, commentContent });
+
   if (!isSuccess) {
-    res
+    return res
       .status(500)
       .json({ status: 500, message: "internal_server_error", data: null });
   }
 
-  res
+  return res
     .status(200)
     .json({ status: 200, message: "update_comment_success", data: null });
-
-  return;
 };
 
-const deleteComment = (req, res) => {
+export const deleteComment = (req, res) => {
   const postId = Number(req.params.postId);
   const commentId = Number(req.params.commentId);
-  const comment = getComment({ postId, commentId });
+  const comment = getCommentModel({ postId, commentId });
 
   if (!comment) {
-    res
+    return res
       .status(404)
       .json({ status: 404, message: "not_a_single_comment", data: null });
   }
 
   if (!postId) {
-    res
+    return res
       .status(400)
       .json({ status: 400, message: "invalid_post_id", data: null });
   }
 
   if (!commentId) {
-    res
+    return res
       .status(400)
       .json({ status: 400, message: "invalid_comment_id", data: null });
   }
 
-  const isSuccess = eraseComment(commentId);
+  const isSuccess = deleteCommentModel(commentId);
 
   if (!isSuccess) {
-    res
+    return res
       .status(500)
       .json({ status: 500, message: "internal_server_error", data: null });
   }
 
-  res
+  return res
     .status(200)
     .json({ status: 200, message: "delete_comment_success", data: null });
-
-  return;
 };
 
-const isOwner = (req, res) => {
+export const checkCommentOwner = (req, res) => {
   const id = Number(req.body.commentId);
   const userId = Number(req.body.userId);
-  const check = checkIsOwner({ userId, commentId: id });
+  const check = checkCommentOwnerModel({ userId, commentId: id });
   if (!check) {
-    res.status(403).json({ status: 403, message: "not_allowed", data: null });
+    return res
+      .status(403)
+      .json({ status: 403, message: "not_allowed", data: null });
   }
 
-  res.status(200).json({ status: 200, message: "is_owner", data: null });
-};
-
-export default {
-  getCommentList,
-  postComment,
-  patchComment,
-  deleteComment,
-  isOwner,
+  return res.status(200).json({ status: 200, message: "is_owner", data: null });
 };
