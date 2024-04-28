@@ -206,7 +206,6 @@ const checkPostOwner = (req, res) => {
   const check = checkPostOwnerModel({ userId, postId: id });
 
   if (!check) {
-    console.log("403 error");
     return res
       .status(403)
       .json({ status: 403, message: "not_allowed", data: null });

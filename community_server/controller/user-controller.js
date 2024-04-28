@@ -121,7 +121,6 @@ const updateUserProfile = (req, res) => {
   }
 
   if (!profile_image.includes(req.headers.host)) {
-    console.log("post Image");
     const saved_image_url = addUserImageModel(profile_image);
     if (!saved_image_url) {
       return res
@@ -129,13 +128,11 @@ const updateUserProfile = (req, res) => {
         .json({ status: 500, message: "internal_server_error", data: null });
     }
     user_server_url = saved_image_url;
-    console.log(user_server_url);
   } else {
     user_server_url = profile_image.replace(
-      req.headers.host,
-      "http://localhost:8080"
+      `https://${req.headers.host}`,
+      "http://localhost:8000"
     );
-    console.log(user_server_url);
   }
 
   if (!checkUserIdModel(userId)) {
