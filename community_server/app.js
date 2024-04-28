@@ -7,7 +7,6 @@ import porfileImageRouter from "./routes/profileImage.js";
 import postImageRouter from "./routes/postImage.js";
 
 import cors from "cors";
-import bodyParser from "body-parser";
 
 const app = express();
 const server = http.createServer(app);
@@ -17,15 +16,24 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(bodyParser.text());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.text());
 
-app.use("/api/users", userRouter);
-app.use("/api/posts", postRouter);
-app.use("/api/posts", commentRouter);
-app.use("/images/profile", porfileImageRouter);
-app.use("/images/post", postImageRouter);
+// /api 경로용 라우터
+const apiRouter = express.Router();
+apiRouter.use("/users", userRouter);
+apiRouter.use("/posts", postRouter);
+apiRouter.use("/posts", commentRouter);
+
+// /imgaes 경로용 라우터
+const imagesRouter = express.Router();
+imagesRouter.use("/profile", profileImageRouter);
+imagesRouter.use("/post", postImageRouter);
+
+// 공통 라우터
+app.use("/api", apiRouter);
+app.use("/images", imagesRouter);
 
 server.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
