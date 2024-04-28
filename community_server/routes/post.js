@@ -13,7 +13,7 @@ router.get("/:id", postController.getPost);
 router.post("/", postController.addPost);
 
 //게시물 수정 --OK
-router.patch("/:id", postController.udpatePost);
+router.patch("/:id", postController.updatePost);
 
 //게시물 삭제
 router.delete("/:id", postController.deletePost);
