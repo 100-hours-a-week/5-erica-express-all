@@ -1,134 +1,18 @@
-import { posts } from "../model/data.js";
-import { checkUser } from "./user-controller.js";
-import fs from "fs";
-import path from "path";
-import { getLocalDateTime } from "../tools/dataUtils.js";
-
-const __dirname = path.resolve();
-
-let postNum = posts.length;
-
-//post관련 서비스
-//게시물 상세 조회 로직
-export const getPost = (id) => {
-  return posts.find((post) => post.postId === id && post.deleted_at === null);
-};
-
-const checkIsOwner = (data) => {
-  const post = getPost(data.postId);
-  if (post.userId !== data.userId) {
-    return false;
-  }
-  return true;
-};
-
-const getPosts = () => {
-  return posts.filter((post) => post.deleted_at === null);
-};
-
-const checkIsPost = (id) => {
-  const post = posts.find(
-    (post) => post.postId === id && post.deleted_at === null
-  );
-  if (!post) {
-    return false;
-  }
-  return true;
-};
-
-//게시물 이미지 저장
-//이미지 저장
-const postImage = (image) => {
-  const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-  if (!matches || matches.length !== 3) {
-    console.log("Wrong Image Type");
-    return null;
-  }
-
-  // 이미지 데이터를 Buffer로 디코딩
-  const imageBuffer = Buffer.from(matches[2], "base64");
-
-  // 이미지를 서버에 저장
-  const imageName = `post_image_${Date.now()}.png`; // 파일명 생성
-  const imagePath = path.join(__dirname, "/images/post", imageName);
-  fs.writeFile(imagePath, imageBuffer, (err) => {
-    if (err) {
-      console.error("Error saving image:", err);
-      return -1;
-    } else {
-      console.log("Image saved successfully");
-    }
-  });
-
-  const imageUrl = `http://localhost:8000/images/post/${imageName}`;
-  return imageUrl;
-};
-
-//게시물 작성 로직
-const registerPost = (data) => {
-  const user = checkUser(data.userId);
-  const date = getLocalDateTime();
-  const postId = postNum + 1;
-
-  const newPost = {
-    postId,
-    userId: data.userId,
-    nickname: user.nickname,
-    title: data.title,
-    content: data.content,
-    postImage: data.postImage,
-    userImage: user.profile_image,
-    created_at: date,
-    updated_at: date,
-    deleted_at: null,
-    view: 0,
-    like: 0,
-    comment_count: 0,
-  };
-  postNum += 1;
-  posts.push(newPost);
-
-  return postId;
-};
-
-//게시물 수정 로직
-const updatePost = (data) => {
-  const postId = data.id;
-  const title = data.title;
-  const content = data.content;
-  const postImage = data.postImage;
-
-  if (title) {
-    posts[postId - 1].title = title;
-  }
-
-  if (content) {
-    posts[postId - 1].content = content;
-  }
-
-  if (postImage) {
-    posts[postId - 1].postImage = postImage;
-  }
-
-  return postId;
-};
-
-//게시물 삭제 로직
-const erasePost = (id) => {
-  const date = getLocalDateTime();
-  posts[id - 1].deleted_at = date;
-  return true;
-};
+import {
+  getPost,
+  checkIsOwner,
+  getPosts,
+  checkIsPost,
+  postImage,
+  registerPost,
+  updatePost,
+  erasePost,
+} from "../model/posts.js";
 
 //--------------------------------------------------------
 //실제 controller
 const getPostList = (req, res) => {
   const posts = getPosts();
-  if (posts.length === 0) {
-    res
-      .status(404)
-      .json({ status: 404, message: "not_a_single_post", data: null });
-  }
 
   //TODO: 서버로 띄울 시 활셩화 필요
   // posts.forEach((post) => {
@@ -143,7 +27,6 @@ const getPostList = (req, res) => {
   // });
 
   res.status(200).json({ status: 200, message: null, data: posts });
-  return;
 };
 
 const getOnePost = (req, res) => {
@@ -169,7 +52,6 @@ const getOnePost = (req, res) => {
   // );
 
   res.status(200).json({ status: 200, message: null, data: post });
-  return;
 };
 
 const getPostImage = (req, res) => {
@@ -233,8 +115,6 @@ const postPost = (req, res) => {
     message: "write_post_success",
     data: { postId },
   });
-
-  return;
 };
 
 const patchPost = (req, res) => {
@@ -287,8 +167,6 @@ const patchPost = (req, res) => {
   res
     .status(200)
     .json({ status: 200, message: "update_post_success", data: { postId } });
-
-  return;
 };
 
 const deletePost = (req, res) => {
@@ -316,8 +194,6 @@ const deletePost = (req, res) => {
   res
     .status(200)
     .json({ status: 200, message: "delete_post_success", data: null });
-
-  return;
 };
 
 const isOwner = (req, res) => {
