@@ -10,7 +10,7 @@ import {
 
 //--------------------------------------------------------
 //실제 controller
-export const getPosts = (req, res) => {
+const getPosts = (req, res) => {
   const posts = getPostsModel();
 
   //TODO: 서버로 띄울 시 활셩화 필요
@@ -28,7 +28,7 @@ export const getPosts = (req, res) => {
   return res.status(200).json({ status: 200, message: null, data: posts });
 };
 
-export const getPost = (req, res) => {
+const getPost = (req, res) => {
   const id = Number(req.params.id);
   if (!id) {
     return res
@@ -53,7 +53,7 @@ export const getPost = (req, res) => {
   return res.status(200).json({ status: 200, message: null, data: post });
 };
 
-export const getPostImage = (req, res) => {
+const getPostImage = (req, res) => {
   const postId = Number(req.params.postId);
 
   if (!postId) {
@@ -69,7 +69,7 @@ export const getPostImage = (req, res) => {
     .json({ status: 200, message: "load_image_success", data: { post_image } });
 };
 
-export const addPost = (req, res) => {
+const addPost = (req, res) => {
   const userId = Number(req.body.userId);
   const title = req.body.title;
   const content = req.body.content;
@@ -116,7 +116,7 @@ export const addPost = (req, res) => {
   });
 };
 
-export const udpatePost = (req, res) => {
+const updatePost = (req, res) => {
   const id = Number(req.params.id);
   const title = req.body.title;
   const content = req.body.content;
@@ -173,7 +173,7 @@ export const udpatePost = (req, res) => {
     .json({ status: 200, message: "update_post_success", data: { postId } });
 };
 
-export const deletePost = (req, res) => {
+const deletePost = (req, res) => {
   const id = Number(req.params.id);
   if (!id) {
     return res
@@ -200,7 +200,7 @@ export const deletePost = (req, res) => {
     .json({ status: 200, message: "delete_post_success", data: null });
 };
 
-export const checkPostOwner = (req, res) => {
+const checkPostOwner = (req, res) => {
   const id = Number(req.body.postId);
   const userId = Number(req.body.userId);
   const check = checkPostOwnerModel({ userId, postId: id });
@@ -213,4 +213,14 @@ export const checkPostOwner = (req, res) => {
   }
 
   return res.status(200).json({ status: 200, message: "is_owner", data: null });
+};
+
+export const postController = {
+  getPosts,
+  getPost,
+  getPostImage,
+  addPost,
+  updatePost,
+  deletePost,
+  checkPostOwner,
 };

@@ -12,7 +12,7 @@ import {
   addUserImageModel,
 } from "../model/users.js";
 
-export const getUsers = (req, res) => {
+const getUsers = (req, res) => {
   //TODO: 서버로 띄울 시 활셩화 필요
   // users.forEach((user) => {
   //   user.profile_image = user.profile_image.replace(
@@ -23,7 +23,7 @@ export const getUsers = (req, res) => {
   return res.status(200).json({ status: 200, message: null, data: users });
 };
 
-export const getUser = (req, res) => {
+const getUser = (req, res) => {
   const userId = Number(req.params.userId);
   if (!userId) {
     return res
@@ -50,7 +50,7 @@ export const getUser = (req, res) => {
   }
 };
 
-export const addUser = (req, res) => {
+const addUser = (req, res) => {
   const { email, nickname, password, profile_image } = req.body;
 
   let profile_server_url = "";
@@ -85,7 +85,7 @@ export const addUser = (req, res) => {
   });
 };
 
-export const logInUser = (req, res) => {
+const logInUser = (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
@@ -108,7 +108,7 @@ export const logInUser = (req, res) => {
     .json({ status: 200, message: "login_success", data: user });
 };
 
-export const updateUserProfile = (req, res) => {
+const updateUserProfile = (req, res) => {
   const userId = Number(req.params.userId);
   const { nickname, profile_image } = req.body;
 
@@ -167,7 +167,7 @@ export const updateUserProfile = (req, res) => {
     .json({ status: 201, message: "update_user_data_success", data: success });
 };
 
-export const updateUserpassword = (req, res) => {
+const updateUserpassword = (req, res) => {
   const userId = Number(req.params.userId);
   const password = req.body.password;
 
@@ -204,7 +204,7 @@ export const updateUserpassword = (req, res) => {
   });
 };
 
-export const deleteUser = (req, res) => {
+const deleteUser = (req, res) => {
   const userId = Number(req.params.id);
 
   if (!userId) {
@@ -228,7 +228,7 @@ export const deleteUser = (req, res) => {
   }
 };
 
-export const duplicateEmail = (req, res) => {
+const duplicateEmail = (req, res) => {
   const email = req.params.email;
 
   const isExist = checkUserEmailModel(email);
@@ -244,7 +244,7 @@ export const duplicateEmail = (req, res) => {
     .json({ status: 200, message: "available_email", data: null });
 };
 
-export const duplicateNickname = (req, res) => {
+const duplicateNickname = (req, res) => {
   const nickname = req.params.nickname;
   const userId = Number(req.body.userId) ?? null;
 
@@ -274,4 +274,16 @@ export const duplicateNickname = (req, res) => {
   return res
     .status(200)
     .json({ status: 200, message: "available_nickname", data: null });
+};
+
+export const userController = {
+  getUsers,
+  getUser,
+  addUser,
+  logInUser,
+  updateUserProfile,
+  updateUserpassword,
+  deleteUser,
+  duplicateEmail,
+  duplicateNickname,
 };

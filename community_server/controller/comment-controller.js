@@ -9,7 +9,7 @@ import {
 } from "../model/comments.js";
 
 //실제 controller 역할
-export const getComments = (req, res) => {
+const getComments = (req, res) => {
   const postId = Number(req.params.postId);
   if (!postId) {
     return res
@@ -29,7 +29,7 @@ export const getComments = (req, res) => {
   return res.status(200).json({ status: 200, message: null, data: comments });
 };
 
-export const addComment = (req, res) => {
+const addComment = (req, res) => {
   const postId = Number(req.params.postId);
   const comment = req.body.comment;
   const userId = Number(req.body.userId);
@@ -72,7 +72,7 @@ export const addComment = (req, res) => {
     .json({ status: 201, message: "write_comment_success", data: null });
 };
 
-export const updateComment = (req, res) => {
+const updateComment = (req, res) => {
   const postId = Number(req.params.postId);
   const commentId = Number(req.params.commentId);
   const commentContent = req.body.comment;
@@ -109,7 +109,7 @@ export const updateComment = (req, res) => {
     .json({ status: 200, message: "update_comment_success", data: null });
 };
 
-export const deleteComment = (req, res) => {
+const deleteComment = (req, res) => {
   const postId = Number(req.params.postId);
   const commentId = Number(req.params.commentId);
   const comment = getCommentModel({ postId, commentId });
@@ -145,7 +145,7 @@ export const deleteComment = (req, res) => {
     .json({ status: 200, message: "delete_comment_success", data: null });
 };
 
-export const checkCommentOwner = (req, res) => {
+const checkCommentOwner = (req, res) => {
   const id = Number(req.body.commentId);
   const userId = Number(req.body.userId);
   const check = checkCommentOwnerModel({ userId, commentId: id });
@@ -156,4 +156,12 @@ export const checkCommentOwner = (req, res) => {
   }
 
   return res.status(200).json({ status: 200, message: "is_owner", data: null });
+};
+
+export const commentController = {
+  getComments,
+  addComment,
+  updateComment,
+  deleteComment,
+  checkCommentOwner,
 };
