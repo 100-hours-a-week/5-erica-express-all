@@ -1,24 +1,12 @@
 import { users } from "../model/data.js";
 import fs from "fs";
 import path from "path";
+import { getLocalDateTime } from "../tools/dataUtils.js";
 
 const __dirname = path.resolve();
 
 //유저 관련 서비스
 let userNum = users.length;
-
-const getLocalDateTime = () => {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  const hour = String(now.getHours()).padStart(2, "0");
-  const minute = String(now.getMinutes()).padStart(2, "0");
-  const second = String(now.getSeconds()).padStart(2, "0");
-
-  const localDateTime = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
-  return localDateTime;
-};
 
 //userId 유효성 조회 로직
 const checkUserId = (userId) => {
