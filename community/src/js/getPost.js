@@ -1,12 +1,16 @@
 import { enableScroll, disableScroll, getScrollPosition } from "./scroll.js";
 
-const postList = document.querySelector(".board");
 const userId = Number(sessionStorage.getItem("userId"));
 const boardModalContainer = document.querySelector(".boardModalContainer");
+const skeleton = document.querySelector(".boardSkeleton");
+const board = document.querySelector(".board");
 
 const urlPostId = Number(window.location.search.split("=")[1]);
 
 const readPost = (post) => {
+  skeleton.style.display = "none";
+  board.style.display = "block";
+
   //조회수 댓글
   let postView = "";
   if (post.view >= 1000000) {
@@ -30,47 +34,34 @@ const readPost = (post) => {
     postComment = post.comment_count;
   }
 
-  postList.innerHTML = `
-    <div class="boardHeader">
-      <p class="boardTitle">${post.title}</p>
-      <div class="boardHeaderBottom">
-        <div class="writer">
-          <img class="writerImage" 
-          alt="profile image" 
-          src=${post.userImage}
-          style="width: 30px; height: 30px" />
-          <p class="postWriterName">${post.nickname}</p>
-          <div class="postWriteDate">${post.created_at}</div>
-        </div>
-        <div class="boardButton">
-          <button class="updateBoard">수정</button>
-          <button class="deleteBoard">삭제</button>
-        </div>
-      </div>
-    </div>
-    <div class="boardBody">
-      <div class="boardImageContainer"></div>
-      <div class="boardContent">${post.content}</div>
-    </div>
-    <div class="boardAction">
-      <div class="readCount">
-        <strong class="readNumber">${postView}</strong>
-        <div>조회수</div>
-      </div> 
-      <div class="commentCount">
-        <strong class="commentNumber">${postComment}</strong>
-        <div>댓글수</div>
-      </div> 
-    </div>
-  `;
+  const boardTitle = board.querySelector(".boardTitle");
+  boardTitle.innerHTML = post.title;
+
+  const writerImage = board.querySelector(".writerImage");
+  writerImage.src = post.userImage;
+
+  const postWriterName = board.querySelector(".postWriterName");
+  postWriterName.innerHTML = post.nickname;
+
+  const postWriteDate = board.querySelector(".postWriteDate");
+  postWriteDate.innerHTML = post.created_at;
+
+  const boardContent = board.querySelector(".boardContent");
+  boardContent.innerHTML = post.content;
+
+  const readNumber = board.querySelector(".readNumber");
+  readNumber.innerHTML = postView;
+
+  const commentNumber = board.querySelector(".commentNumber");
+  commentNumber.innerHTML = postComment;
 
   if (post.postImage) {
-    document.body.querySelector(".boardImageContainer").innerHTML = `
+    board.querySelector(".boardImageContainer").innerHTML = `
       <img class="boardImage" src=${post.postImage} alt="board image" />
     `;
   }
-  const deletePostButton = document.querySelector(".deleteBoard");
-  const updatePostButton = document.querySelector(".updateBoard");
+  const deletePostButton = board.querySelector(".deleteBoard");
+  const updatePostButton = board.querySelector(".updateBoard");
 
   updatePostButton.addEventListener("click", async () => {
     const checkData = await fetch(`${backHost}/api/posts/checkOwner`, {

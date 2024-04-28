@@ -9,6 +9,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <link rel="stylesheet" type="text/css" href="/src/styles/navbar.css" />
     <link rel="stylesheet" type="text/css" href="/src/styles/post.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/src/styles/postSkeleton.css"
+    />
     <link rel="stylesheet" type="text/css" href="/src/styles/modal.css" />
     <link rel="stylesheet" type="text/css" href="/styles.css" />
     <script type="text/javascript" src="/src/js/static.js"></script>
@@ -51,7 +56,59 @@
     </section>
     <section class="main">
       <!--게시물 목록 표시-->
-      <div class="board"></div>
+      <div class="boardSkeleton">
+        <div class="boardHeader">
+          <p class="boardTitle"></p>
+          <div class="boardHeaderBottom">
+            <div class="writer">
+              <div class="writerImage"></div>
+              <p class="postWriterName"></p>
+              <div class="postWriteDate"></div>
+            </div>
+          </div>
+        </div>
+        <div class="boardBody">
+          <div class="boardImageContainer">
+            <div class="boardImage"></div>
+          </div>
+          <div class="boardContent"></div>
+        </div>
+      </div>
+      <div class="board">
+        <div class="boardHeader">
+          <p class="boardTitle"></p>
+          <div class="boardHeaderBottom">
+            <div class="writer">
+              <img
+                class="writerImage"
+                alt="profile image"
+                src=""
+                style="width: 30px; height: 30px"
+              />
+              <p class="postWriterName"></p>
+              <div class="postWriteDate"></div>
+            </div>
+            <div class="boardButton">
+              <button class="updateBoard">수정</button>
+              <button class="deleteBoard">삭제</button>
+            </div>
+          </div>
+        </div>
+        <div class="boardBody">
+          <div class="boardImageContainer"></div>
+          <div class="boardContent"></div>
+        </div>
+        <div class="boardAction">
+          <div class="readCount">
+            <strong class="readNumber"></strong>
+            <div>조회수</div>
+          </div>
+          <div class="commentCount">
+            <strong class="commentNumber"></strong>
+            <div>댓글수</div>
+          </div>
+        </div>
+      </div>
       <hr />
       <div class="commentContainer">
         <form class="writeComment">
