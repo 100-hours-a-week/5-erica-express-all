@@ -3,7 +3,7 @@ import http from "http";
 import userRouter from "./routes/user.js";
 import postRouter from "./routes/post.js";
 import commentRouter from "./routes/comment.js";
-import porfileImageRouter from "./routes/profileImage.js";
+import profileImageRouter from "./routes/profileImage.js";
 import postImageRouter from "./routes/postImage.js";
 
 import cors from "cors";
@@ -17,7 +17,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
 app.use(express.text());
 
 // /api 경로용 라우터
