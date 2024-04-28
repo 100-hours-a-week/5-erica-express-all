@@ -98,7 +98,7 @@ const reader = new FileReader();
         setTimeout(() => {
           toastMessage.style.display = "none";
         }, 2000);
-        alert("수정 완료");
+        location.href = "/board";
         return;
       default:
         alert("수정 실패");
