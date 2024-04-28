@@ -66,15 +66,17 @@ export const updateCommentModel = (data) => {
   const { commentId, commentContent } = data;
 
   const commentIndex = comments.findIndex(
-    (comment) => comment.id === commentId && comment.deleted_at === null
+    (comment) => comment.commentId === commentId && comment.deleted_at === null
   );
-
   comments[commentIndex].comment = commentContent;
   return comments[commentIndex];
 };
 
 export const deleteCommentModel = (commentId) => {
+  const commentIndex = comments.findIndex(
+    (comment) => comment.commentId === commentId && comment.deleted_at === null
+  );
   const date = getLocalDateTime();
-  comments[commentId - 1].deleted_at = date;
+  comments[commentIndex].deleted_at = date;
   return true;
 };
