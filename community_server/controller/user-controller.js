@@ -24,7 +24,8 @@ const getUsers = (req, res) => {
 };
 
 const getUser = (req, res) => {
-  const userId = Number(req.params.userId);
+  const userId = req.user.userId;
+
   if (!userId) {
     return res
       .status(400)
@@ -86,8 +87,7 @@ const addUser = (req, res) => {
 };
 
 const logInUser = (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
+  const { email, password } = req.body;
 
   if (!email) {
     return res
@@ -99,17 +99,18 @@ const logInUser = (req, res) => {
 
   if (!user) {
     return res
-      .status(401)
-      .json({ status: 401, message: "invalid_email_or_password", data: null });
+      .status(404)
+      .json({ status: 404, message: "invalid_email_or_password", data: null });
   }
 
+  req.session.user = user;
   return res
     .status(200)
     .json({ status: 200, message: "login_success", data: user });
 };
 
 const updateUserProfile = (req, res) => {
-  const userId = Number(req.params.userId);
+  const userId = Number(req.userId);
   const { nickname, profile_image } = req.body;
 
   let user_server_url = "";
@@ -121,7 +122,6 @@ const updateUserProfile = (req, res) => {
   }
 
   if (!profile_image.includes(req.headers.host)) {
-    console.log("post Image");
     const saved_image_url = addUserImageModel(profile_image);
     if (!saved_image_url) {
       return res
@@ -131,9 +131,10 @@ const updateUserProfile = (req, res) => {
     user_server_url = saved_image_url;
     console.log(user_server_url);
   } else {
+    // TODO: 배포할때 주소 변경해야함
     user_server_url = profile_image.replace(
-      req.headers.host,
-      "http://localhost:8080"
+      `http://${req.headers.host}`,
+      "http://localhost:8000"
     );
     console.log(user_server_url);
   }
@@ -168,7 +169,7 @@ const updateUserProfile = (req, res) => {
 };
 
 const updateUserpassword = (req, res) => {
-  const userId = Number(req.params.userId);
+  const userId = Number(req.userId);
   const password = req.body.password;
 
   if (!userId) {
@@ -183,7 +184,7 @@ const updateUserpassword = (req, res) => {
       .json({ status: 400, message: "invalid_password", data: null });
   }
 
-  if (!checkUserId(userId)) {
+  if (!checkUserIdModel(userId)) {
     return res
       .status(404)
       .json({ status: 404, message: "not_found_user", data: null });
@@ -205,7 +206,7 @@ const updateUserpassword = (req, res) => {
 };
 
 const deleteUser = (req, res) => {
-  const userId = Number(req.params.id);
+  const userId = Number(req.userId);
 
   if (!userId) {
     return res
@@ -213,7 +214,7 @@ const deleteUser = (req, res) => {
       .json({ status: 400, message: "invalid_user_id", data: null });
   }
 
-  if (!checkUserId(userId)) {
+  if (!checkUserIdModel(userId)) {
     return res
       .status(404)
       .json({ status: 404, message: "not_found_user", data: null });
@@ -246,7 +247,7 @@ const duplicateEmail = (req, res) => {
 
 const duplicateNickname = (req, res) => {
   const nickname = req.params.nickname;
-  const userId = Number(req.body.userId) ?? null;
+  const userId = Number(req.session.user.userId) ?? null;
 
   if (!userId) {
     return res
@@ -276,14 +277,37 @@ const duplicateNickname = (req, res) => {
     .json({ status: 200, message: "available_nickname", data: null });
 };
 
+const duplicateSignUpNickname = (req, res) => {
+  const nickname = req.params.nickname;
+
+  const isExist = checkUserNicknameModel(nickname);
+
+  if (isExist) {
+    return res
+      .status(400)
+      .json({ status: 400, message: "already_exist_nickname", data: null });
+  }
+
+  return res
+    .status(200)
+    .json({ status: 200, message: "available_nickname", data: null });
+};
+
+const logOut = (req, res) => {
+  req.session.destroy();
+  res.status(200).json({ status: 200, message: "log_out_success", data: null });
+};
+
 export const userController = {
   getUsers,
   getUser,
   addUser,
   logInUser,
   updateUserProfile,
+  duplicateSignUpNickname,
   updateUserpassword,
   deleteUser,
   duplicateEmail,
   duplicateNickname,
+  logOut,
 };

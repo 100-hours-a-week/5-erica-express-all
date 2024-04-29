@@ -52,6 +52,7 @@ logInButton.addEventListener("click", async () => {
       Accept: "application/json",
       "ngrok-skip-browser-warning": "69420",
     },
+    credentials: "include",
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
@@ -62,7 +63,6 @@ logInButton.addEventListener("click", async () => {
   switch (responseData.status) {
     case 200:
       logInButton.style.backgroundColor = "#7f6aee";
-      sessionStorage.setItem("userId", responseData.data.userId);
       helperText.innerHTML = "";
       setTimeout(() => {
         location.href = "/board";

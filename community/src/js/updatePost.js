@@ -40,6 +40,7 @@ const read = (post) => {
       "Content-Type": "application/json",
       Accept: "application/json",
     },
+    credentials: "include",
   });
   const postResponseData = await postResponse.json();
 
@@ -47,9 +48,13 @@ const read = (post) => {
     case 200:
       read(postResponseData.data);
       break;
+    case 401:
+      alert("로그인 하십시오");
+      location.href = "/";
+      return;
     default:
       alert("해당 게시물이 없습니다");
-      location.replace = "/board/post.html";
+      location.href = "/board";
       return;
   }
 
@@ -65,15 +70,19 @@ const read = (post) => {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
+      credentials: "include",
       method: "PATCH",
       body: JSON.stringify({
         title: title.value,
         content: content.value,
-        postImage: postImage.src,
+        postImageInput: postImage.src,
       }),
     });
 
-    switch (response.status) {
+    const responseData = await response.json();
+    console.log(responseData);
+
+    switch (responseData.status) {
       case 200:
         alert("게시글 수정이 완성됐습니다.");
         location.href = `/public/board/post.html?postId=${urlPostId}`;

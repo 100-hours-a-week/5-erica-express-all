@@ -7,12 +7,28 @@ import postImageRouter from "./routes/postImage.js";
 import * as Sentry from "@sentry/node";
 import { nodeProfilingIntegration } from "@sentry/profiling-node";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+import session from "express-session";
 
 const app = express();
 const port = 8000;
 const corsOptions = {
-  origin: "*",
+  origin: "http://localhost:3000",
+  credentials: true,
+  method: ["GET", "PUT", "POST", "PATCH", "DELETE"],
 };
+app.use(cors(corsOptions));
+app.use(cookieParser());
+app.use(
+  session({
+    secret: "pizzamandu",
+    saveUninitialized: true,
+    resave: false,
+    cookie: {
+      secure: false,
+    },
+  })
+);
 
 Sentry.init({
   dsn: "https://9fddd166b460c75bd5777c01ac66f668@o4507163352629248.ingest.us.sentry.io/4507163357020160",
@@ -35,7 +51,6 @@ app.use(Sentry.Handlers.requestHandler());
 // TracingHandler creates a trace for every incoming request
 app.use(Sentry.Handlers.tracingHandler());
 
-app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.text());
@@ -63,6 +78,7 @@ apiRouter.use("/posts", commentRouter);
 const imagesRouter = express.Router();
 imagesRouter.use("/profile", profileImageRouter);
 imagesRouter.use("/post", postImageRouter);
+
 // 공통 라우터
 app.use("/api", apiRouter);
 app.use("/images", imagesRouter);

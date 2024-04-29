@@ -28,10 +28,10 @@ commentRegisterButton.addEventListener("click", async () => {
       "Content-Type": "application/json",
       Accept: "application/json",
     },
+    credentials: "include",
     method: "POST",
     body: JSON.stringify({
       postId: urlPostId,
-      userId,
       comment: commentInput.value,
     }),
   });

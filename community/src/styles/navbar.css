@@ -110,3 +110,10 @@ body {
 .logOut:hover {
   background-color: gray;
 }
+
+.logOut {
+  border: 0;
+  color: black;
+  font-size: 1.2rem;
+  font-weight: 500;
+}

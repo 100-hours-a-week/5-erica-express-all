@@ -19,22 +19,20 @@ updateButton.addEventListener("click", async () => {
 
   const password = passwordInput.value;
 
-  const updateResponse = await fetch(
-    `${backHost}/api/users/${userId}/password`,
-    {
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "ngrok-skip-browser-warning": "69420",
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      method: "PATCH",
-      //TODO: postimage url 다시 생성
-      body: JSON.stringify({
-        password,
-      }),
-    }
-  );
+  const updateResponse = await fetch(`${backHost}/api/users/user/password`, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "ngrok-skip-browser-warning": "69420",
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    credentials: "include",
+    method: "PATCH",
+    //TODO: postimage url 다시 생성
+    body: JSON.stringify({
+      password,
+    }),
+  });
 
   switch (updateResponse.status) {
     case 201:

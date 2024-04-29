@@ -1,5 +1,6 @@
 import express from "express";
 import { postController } from "../controller/post-controller.js";
+import { getAuthUser, getPostUser } from "../middleware/authUser.js";
 
 const router = express.Router();
 
@@ -10,13 +11,13 @@ router.get("/", postController.getPosts);
 router.get("/:id", postController.getPost);
 
 //게시물 작성 --OK
-router.post("/", postController.addPost);
+router.post("/", getAuthUser, postController.addPost);
 
 //게시물 수정 --OK
 router.patch("/:id", postController.updatePost);
 
 //게시물 삭제
-router.delete("/:id", postController.deletePost);
+router.delete("/:id", getPostUser, postController.deletePost);
 
 //게시물 작성자 비교
 router.post("/checkOwner", postController.checkPostOwner);
