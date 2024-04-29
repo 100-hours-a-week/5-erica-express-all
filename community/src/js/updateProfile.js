@@ -12,11 +12,12 @@ const reader = new FileReader();
 
 (async () => {
   console.log(userId);
-  const response = await fetch(`${backHost}/api/users/${userId}`, {
+  const response = await fetch(`${backHost}/api/users/user`, {
     headers: {
       "Access-Control-Allow-Origin": "*",
       "ngrok-skip-browser-warning": "69420",
     },
+    credentials: "include",
   });
   const userData = await response.json();
 
@@ -57,6 +58,7 @@ const reader = new FileReader();
           "Content-Type": "application/json",
           Accept: "application/json",
         },
+        credentials: "include",
         method: "POST",
         body: JSON.stringify({
           userId,
@@ -74,13 +76,14 @@ const reader = new FileReader();
         break;
     }
 
-    const updateResponse = await fetch(`${backHost}/api/users/${userId}`, {
+    const updateResponse = await fetch(`${backHost}/api/users/user/profile`, {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "ngrok-skip-browser-warning": "69420",
         "Content-Type": "application/json",
         Accept: "application/json",
       },
+      credentials: "include",
       method: "PATCH",
       //TODO: postimage url 다시 생성
       body: JSON.stringify({
@@ -136,13 +139,14 @@ document
   .addEventListener("click", async () => {
     deleteModal.style.display = "none";
     enableScroll();
-    const deleteResponse = await fetch(`${backHost}/api/users/${userId}`, {
+    const deleteResponse = await fetch(`${backHost}/api/users/user`, {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "ngrok-skip-browser-warning": "69420",
         "Content-Type": "application/json",
         Accept: "application/json",
       },
+      credentials: "include",
       method: "DELETE",
     });
     const deleteData = await deleteResponse.json();

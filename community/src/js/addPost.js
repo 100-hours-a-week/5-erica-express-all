@@ -41,9 +41,9 @@ writeButton.addEventListener("click", async () => {
       "Content-Type": "application/json",
       Accept: "application/json",
     },
+    credentials: "include",
     method: "POST",
     body: JSON.stringify({
-      userId,
       title,
       content,
       postImage: boardImage,

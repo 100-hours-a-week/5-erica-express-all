@@ -61,6 +61,7 @@ const createPosts = (post) => {
       "Access-Control-Allow-Origin": "*",
       "ngrok-skip-browser-warning": "69420",
     },
+    credentials: "include",
   });
   const responseData = await response.json();
 
@@ -73,6 +74,10 @@ const createPosts = (post) => {
       responseData.data.forEach((post) => {
         createPosts(post);
       });
+      return;
+    case 401:
+      alert("로그인 하십시오");
+      location.replace("/");
       return;
     default:
       alert("서버 오류");

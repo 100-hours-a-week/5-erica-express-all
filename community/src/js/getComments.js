@@ -37,6 +37,7 @@ const readComments = (comment) => {
       "Access-Control-Allow-Origin": "*",
       "ngrok-skip-browser-warning": "69420",
     },
+    credentials: "include",
   });
 
   const responseData = await response.json();
@@ -76,7 +77,8 @@ const readComments = (comment) => {
             Accept: "application/json",
           },
           method: "POST",
-          body: JSON.stringify({ userId, commentId: targetCommentId }),
+          credentials: "include",
+          body: JSON.stringify({ commentId: targetCommentId }),
         }
       );
 
@@ -116,7 +118,8 @@ const readComments = (comment) => {
             Accept: "application/json",
           },
           method: "POST",
-          body: JSON.stringify({ userId, commentId: targetCommentId }),
+          credentials: "include",
+          body: JSON.stringify({ commentId: targetCommentId }),
         }
       );
 
@@ -165,6 +168,7 @@ updateButton.addEventListener("click", async () => {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
+      credentials: "include",
       method: "PATCH",
       body: JSON.stringify({ comment: updateText }),
     }
@@ -192,6 +196,7 @@ document
     const response = await fetch(
       `${backHost}/api/posts/${urlPostId}/comments/${targetCommentId}`,
       {
+        credentials: "include",
         headers: {
           "Access-Control-Allow-Origin": "*",
           "ngrok-skip-browser-warning": "69420",

@@ -71,8 +71,9 @@ const readPost = (post) => {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
+      credentials: "include",
       method: "POST",
-      body: JSON.stringify({ userId, postId: post.postId }),
+      body: JSON.stringify({ postId: post.postId }),
     });
 
     const checkResponseData = await checkData.json();
@@ -93,8 +94,9 @@ const readPost = (post) => {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
+      credentials: "include",
       method: "POST",
-      body: JSON.stringify({ userId, postId: post.postId }),
+      body: JSON.stringify({ postId: post.postId }),
     });
 
     const checkResponseData = await checkData.json();
@@ -120,6 +122,7 @@ const readPost = (post) => {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
+        credentials: "include",
         method: "DELETE",
       });
 
@@ -155,12 +158,17 @@ const readPost = (post) => {
       "Access-Control-Allow-Origin": "*",
       "ngrok-skip-browser-warning": "69420",
     },
+    credentials: "include",
   });
   const responseData = await response.json();
 
   switch (responseData.status) {
     case 200:
       readPost(responseData.data);
+      return;
+    case 401:
+      alert("로그인 하십시오");
+      location.replace("/");
       return;
     default:
       alert("게시물이 없습니다");

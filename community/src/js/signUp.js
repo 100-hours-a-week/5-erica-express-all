@@ -53,6 +53,7 @@ const checkEmailValidation = async (email) => {
       "Access-Control-Allow-Origin": "*",
       "ngrok-skip-browser-warning": "69420",
     },
+    credentials: "include",
     method: "POST",
   }).then(async (response) => {
     const data = await response.json();
@@ -130,12 +131,13 @@ const checkNicknameValidation = async (nickname) => {
 
   //닉네임이 중복일시
   const isNicknameDuplicate = await fetch(
-    `${backHost}/api/users/nickname/${nickname}`,
+    `${backHost}/api/users/signup/nickname/${nickname}`,
     {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "ngrok-skip-browser-warning": "69420",
       },
+      credentials: "include",
       method: "POST",
     }
   ).then(async (response) => {
@@ -205,6 +207,7 @@ signUpButton.addEventListener("click", async () => {
       "Content-Type": "application/json",
       Accept: "application/json",
     },
+    credentials: "include",
     method: "POST",
     body: data,
   });
