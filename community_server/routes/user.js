@@ -1,13 +1,14 @@
 import express from "express";
 import { userController } from "../controller/user-controller.js";
+import { getAuthUser, modifyAuthUser } from "../middleware/authUser.js";
 
 const router = express.Router();
 
-//전체 유저 목록
+//전체 유저 목록 getAuthUser
 router.get("/", userController.getUsers);
 
 //userId 회원 조회
-router.get("/:userId", userController.getUser);
+router.get("/user", getAuthUser, userController.getUser);
 
 //회원가입
 router.post("/signup", userController.addUser);
@@ -16,19 +17,36 @@ router.post("/signup", userController.addUser);
 router.post("/login", userController.logInUser);
 
 //회원정보 변경
-router.patch("/:userId", userController.updateUserProfile);
+router.patch("/user/profile", modifyAuthUser, userController.updateUserProfile);
 
 //비밀번호 변경
-router.patch("/:userId/password", userController.updateUserpassword);
+router.patch(
+  "/user/password",
+  modifyAuthUser,
+  userController.updateUserpassword
+);
 
 //유저 삭제
-router.delete("/:id", userController.deleteUser);
+router.delete("/user", getAuthUser, userController.deleteUser);
 
 //T이메일 중복 체크
 router.post("/email/:email", userController.duplicateEmail);
 
 //닉네임 중복 체크
-router.post("/nickname/:nickname", userController.duplicateNickname);
+router.post(
+  "/nickname/:nickname",
+  getAuthUser,
+  userController.duplicateNickname
+);
+
+//회원가입시 중복 체크
+router.post(
+  "/signup/nickname/:nickname",
+  userController.duplicateSignUpNickname
+);
+
+//로그아웃
+router.delete("/logOut", getAuthUser, userController.logOut);
 
 //이미지 업로드
 // router.post("/upload", userController.postImage);

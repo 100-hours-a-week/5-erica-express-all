@@ -32,7 +32,7 @@ const getComments = (req, res) => {
 const addComment = (req, res) => {
   const postId = Number(req.params.postId);
   const comment = req.body.comment;
-  const userId = Number(req.body.userId);
+  const userId = Number(req.session.user.userId);
 
   if (!postId) {
     return res
@@ -45,12 +45,6 @@ const addComment = (req, res) => {
     return res
       .status(404)
       .json({ status: 404, message: "not_a_single_post", data: null });
-  }
-
-  if (!userId) {
-    return res
-      .status(400)
-      .json({ status: 400, message: "invalid_user_id", data: null });
   }
 
   if (!comment) {
@@ -73,28 +67,8 @@ const addComment = (req, res) => {
 };
 
 const updateComment = (req, res) => {
-  const postId = Number(req.params.postId);
   const commentId = Number(req.params.commentId);
   const commentContent = req.body.comment;
-  const comment = getCommentModel({ commentId, postId });
-
-  if (!comment) {
-    return res
-      .status(404)
-      .json({ status: 404, message: "not_a_single_comment", data: null });
-  }
-
-  if (!postId) {
-    return res
-      .status(400)
-      .json({ status: 400, message: "invalid_post_id", data: null });
-  }
-
-  if (!commentId) {
-    return res
-      .status(400)
-      .json({ status: 400, message: "invalid_comment_id", data: null });
-  }
 
   const isSuccess = updateCommentModel({ commentId, commentContent });
 
@@ -110,28 +84,7 @@ const updateComment = (req, res) => {
 };
 
 const deleteComment = (req, res) => {
-  const postId = Number(req.params.postId);
   const commentId = Number(req.params.commentId);
-  const comment = getCommentModel({ postId, commentId });
-
-  if (!comment) {
-    return res
-      .status(404)
-      .json({ status: 404, message: "not_a_single_comment", data: null });
-  }
-
-  if (!postId) {
-    return res
-      .status(400)
-      .json({ status: 400, message: "invalid_post_id", data: null });
-  }
-
-  if (!commentId) {
-    return res
-      .status(400)
-      .json({ status: 400, message: "invalid_comment_id", data: null });
-  }
-
   const isSuccess = deleteCommentModel(commentId);
 
   if (!isSuccess) {
@@ -147,7 +100,7 @@ const deleteComment = (req, res) => {
 
 const checkCommentOwner = (req, res) => {
   const id = Number(req.body.commentId);
-  const userId = Number(req.body.userId);
+  const userId = Number(req.session.user.userId);
   const check = checkCommentOwnerModel({ userId, commentId: id });
   if (!check) {
     return res

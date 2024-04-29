@@ -84,12 +84,10 @@ export const addPostModel = (data) => {
 
 //게시물 수정 로직
 export const updatePostModel = (data) => {
-  const { postId, title, content, postImage } = data;
-
+  const { id, title, content, postImage } = data;
   const postIndex = posts.findIndex(
-    (post) => post.postId === postId && post.deleted_at === null
+    (post) => post.postId === id && post.deleted_at === null
   );
-
   if (title) {
     posts[postIndex].title = title;
   }

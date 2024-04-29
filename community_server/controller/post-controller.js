@@ -70,10 +70,8 @@ const getPostImage = (req, res) => {
 };
 
 const addPost = (req, res) => {
-  const userId = Number(req.body.userId);
-  const title = req.body.title;
-  const content = req.body.content;
-  const postImageSrc = req.body.postImage;
+  const userId = Number(req.session.user.userId);
+  const { title, content, postImageSrc } = req.body;
   let post_server_url = "";
 
   if (!userId) {
@@ -118,20 +116,11 @@ const addPost = (req, res) => {
 
 const updatePost = (req, res) => {
   const id = Number(req.params.id);
-  const title = req.body.title;
-  const content = req.body.content;
-  const postImageInput = req.body.postImage;
+  const { title, content, postImageInput } = req.body;
+
   let post_server_url = "";
 
-  const post = getPostModel(id);
-
-  if (!post) {
-    return res
-      .status(404)
-      .json({ status: 404, message: "not_a_single_post", data: null });
-  }
-
-  if (!title && !content && !postImage) {
+  if (!title && !content && !postImageInput) {
     return res.status(400).json({
       status: 400,
       message: "invalid_post_content_length",
@@ -146,7 +135,7 @@ const updatePost = (req, res) => {
   }
 
   if (postImageInput) {
-    post_server_url = updatePostModel(postImageInput);
+    post_server_url = addPostImageModel(postImageInput);
   }
 
   if (post_server_url === -1) {
@@ -175,19 +164,6 @@ const updatePost = (req, res) => {
 
 const deletePost = (req, res) => {
   const id = Number(req.params.id);
-  if (!id) {
-    return res
-      .status(400)
-      .json({ status: 400, message: "invalid_post_id", data: null });
-  }
-
-  const post = getPostModel(id);
-  if (!post) {
-    return res
-      .status(404)
-      .json({ status: 404, message: "not_a_single_post", data: null });
-  }
-
   const isSuccess = deletePostModel(id);
   if (!isSuccess) {
     return res
@@ -201,12 +177,19 @@ const deletePost = (req, res) => {
 };
 
 const checkPostOwner = (req, res) => {
+  if (!req.session) {
+    return res
+      .status(403)
+      .json({ status: 403, message: "unauthorized", data: null });
+  }
+
+  const userId = Number(req.session.user.userId);
+
   const id = Number(req.body.postId);
-  const userId = Number(req.body.userId);
+
   const check = checkPostOwnerModel({ userId, postId: id });
 
   if (!check) {
-    console.log("403 error");
     return res
       .status(403)
       .json({ status: 403, message: "not_allowed", data: null });
