@@ -4,8 +4,8 @@ import { getAuthUser, modifyAuthUser } from "../middleware/authUser.js";
 
 const router = express.Router();
 
-//전체 유저 목록 getAuthUser
-router.get("/", userController.getUsers);
+//전체 유저 목록
+router.get("/", getAuthUser, userController.getUsers);
 
 //userId 회원 조회
 router.get("/user", getAuthUser, userController.getUser);
