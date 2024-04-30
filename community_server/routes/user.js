@@ -1,6 +1,7 @@
 import express from "express";
 import { userController } from "../controller/user-controller.js";
 import { getAuthUser, modifyAuthUser } from "../middleware/authUser.js";
+import { validation } from "../middleware/validation.js";
 
 const router = express.Router();
 
@@ -11,7 +12,7 @@ router.get("/", getAuthUser, userController.getUsers);
 router.get("/user", getAuthUser, userController.getUser);
 
 //회원가입
-router.post("/signup", userController.addUser);
+router.post("/signup", validation, userController.addUser);
 
 //로그인
 router.post("/login", userController.logInUser);
