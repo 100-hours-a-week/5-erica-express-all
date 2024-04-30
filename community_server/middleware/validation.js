@@ -1,4 +1,4 @@
-import { checkUserEmailModel, checkUserNicknameModel } from "../model/users";
+import { checkUserEmailModel, checkUserNicknameModel } from "../model/users.js";
 
 export const validation = (req, res, next) => {
   const { nickname, email } = req.body;
