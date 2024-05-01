@@ -11,7 +11,9 @@ import {
 //--------------------------------------------------------
 //실제 controller
 const getPosts = (req, res) => {
-  const posts = getPostsModel();
+  console.log(req.query.cursor);
+  const cursor = Number(req.query.cursor);
+  const posts = getPostsModel(cursor);
 
   //TODO: 서버로 띄울 시 활셩화 필요
   // posts.forEach((post) => {

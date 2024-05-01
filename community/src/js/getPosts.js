@@ -1,3 +1,10 @@
+import { useIntersectionObserver } from "../hooks/useIntersectionObserver.js";
+
+let cursor = 0;
+let hasNextPage = false;
+let fetchMoreInProgress = false;
+const size = 10;
+
 const createPosts = (post) => {
   let postTitle = post.title;
   if (post.title.length > 26) {
@@ -56,7 +63,7 @@ const createPosts = (post) => {
 };
 
 (async () => {
-  const response = await fetch(`${backHost}/api/posts`, {
+  const response = await fetch(`${backHost}/api/posts?cursor=${cursor}`, {
     headers: {
       "Access-Control-Allow-Origin": "*",
       "ngrok-skip-browser-warning": "69420",
@@ -69,11 +76,12 @@ const createPosts = (post) => {
     case 200:
       if (responseData.data.length === 0) {
         alert("게시물이 없습니다. 게시물을 작성하십시오");
-        location.replace("/board/write");
+        // location.replace("/board/write");
       }
       responseData.data.forEach((post) => {
         createPosts(post);
       });
+      cursor += size;
       return;
     case 401:
       alert("로그인 하십시오");
@@ -84,3 +92,36 @@ const createPosts = (post) => {
       return;
   }
 })();
+
+const onIntersect = (entries, observer) => {
+  console.log("onIntersect");
+  console.log(cursor);
+  entries.forEach(async (entry) => {
+    if (entry.isIntersecting) {
+      observer.unobserve(entry.target);
+      if (hasNextPage && fetchMoreInProgress === false) {
+        fetchMoreInProgress = true;
+        const response = await fetch(`${backHost}/api/posts?cursor=${cursor}`, {
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "ngrok-skip-browser-warning": "69420",
+          },
+          credentials: "include",
+        });
+        const responseData = await response.json();
+        if (responseData.status !== 200) {
+          hasNextPage = false;
+        }
+        responseData.data.forEach((post) => {
+          createPosts(post);
+        });
+        cursor += size;
+        fetchMoreInProgress = false;
+      }
+    }
+  });
+};
+
+useIntersectionObserver(onIntersect, document.querySelector(".target"), {
+  rootMargin: `100px`,
+});

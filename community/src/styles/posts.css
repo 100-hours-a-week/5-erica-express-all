@@ -92,3 +92,8 @@ hr {
   border-radius: 50%;
   border: 0.1rem solid black;
 }
+
+.target {
+  width: 100%;
+  height: 1rem;
+}
