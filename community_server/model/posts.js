@@ -23,10 +23,8 @@ export const checkPostOwnerModel = (data) => {
   return post.userId !== data.userId ? false : true;
 };
 
-export const getPostsModel = (cursor) => {
-  return posts
-    .filter((post) => post.deleted_at === null)
-    .slice(cursor, cursor + 10);
+export const getPostsModel = () => {
+  return posts.filter((post) => post.deleted_at === null);
 };
 
 //게시물 이미지 저장
