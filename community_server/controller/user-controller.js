@@ -198,6 +198,7 @@ const updateUserpassword = (req, res) => {
       .json({ status: 500, message: "internal_server_error", data: null });
   }
 
+  req.session.destroy();
   return res.status(201).json({
     status: 201,
     message: "change_user_password_success",
