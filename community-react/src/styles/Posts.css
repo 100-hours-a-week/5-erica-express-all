@@ -1,5 +1,5 @@
 .main {
-  margin: 5rem auto 5rem;
+  margin: 10rem auto 5rem;
   max-width: 60rem;
   width: 100%;
   height: fit-content;
@@ -18,13 +18,14 @@
   gap: 2rem;
 }
 
-.title {
+.postsTitle {
   text-align: center;
   font-size: 1.8rem;
   font-weight: 400;
 }
 
 .writeContainer {
+  margin-top: 1rem;
   display: flex;
   width: 100%;
   justify-content: flex-end;
@@ -47,7 +48,7 @@
   background-color: var(--button-enabled);
 }
 
-.boardContainer {
+.miniBoardContainer {
   display: block;
   margin: 0 auto;
   width: 100%;
@@ -59,7 +60,7 @@
   color: black;
 }
 
-.boardContent {
+.miniBoardContent {
   display: flex;
   justify-content: space-between;
 }
@@ -74,7 +75,7 @@ hr {
   margin: 1rem 0;
 }
 
-.boardWriter {
+.miniBoardWriter {
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -83,12 +84,12 @@ hr {
 
 .action,
 .date,
-.writerName {
+.miniWriterName {
   font-size: 1.2rem;
   font-weight: 400;
 }
 
-.writerImage {
+.miniWriterImage {
   border-radius: 50%;
   border: 0.1rem solid black;
 }
