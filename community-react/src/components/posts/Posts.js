@@ -2,66 +2,38 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { backHost } from "../../static";
+import { viewToK, commentToK } from "../../utils/numberToK";
 import "../../styles/Posts.css";
 
 function MiniPost({ data }) {
-  const {
-    title,
-    view,
-    comment_count,
-    postId,
-    like,
-    created_at,
-    userImage,
-    nickname,
-  } = data;
+  const postTitle = data.title.slice(0, 26);
 
-  const postTitle = title.slice(0, 26);
+  const postView = viewToK(data.view);
 
-  let postView = "";
-  if (view >= 1000000) {
-    postView = "100K";
-  } else if (view >= 10000) {
-    postView = "10K";
-  } else if (view >= 1000) {
-    postView = "1K";
-  } else {
-    postView = view;
-  }
-
-  let postCommentCount = "";
-  if (comment_count >= 1000) {
-    postCommentCount = "1K";
-  } else if (comment_count >= 10000) {
-    postCommentCount = "10K";
-  } else if (comment_count >= 1000000) {
-    postCommentCount = "100K";
-  } else {
-    postCommentCount = comment_count;
-  }
+  const postCommentCount = commentToK(data.comment_count);
 
   return (
-    <Link className="boardContainer" to={`/posts/${postId}`}>
-      <div className="board">
-        <h2 className="boardTitle">{postTitle}</h2>
-        <div className="boardContent">
+    <Link className="miniBoardContainer" to={`/posts/${data.postId}`}>
+      <div className="miniBoard">
+        <h2 className="miniBoardTitle">{postTitle}</h2>
+        <div className="miniBoardContent">
           <div className="action">
-            <div className="comment">댓글 {postCommentCount}</div>
-            <div className="like">좋아요 {like}</div>
-            <div className="view">조회수 {postView}</div>
+            <div className="miniComment">댓글 {postCommentCount}</div>
+            <div className="miniLike">좋아요 {data.like}</div>
+            <div className="miniView">조회수 {postView}</div>
           </div>
-          <div className="date">{created_at}</div>
+          <div className="date">{data.created_at}</div>
         </div>
       </div>
       <hr />
-      <div className="boardWriter">
+      <div className="miniBoardWriter">
         <img
-          alt="profile imge"
-          src={userImage}
+          alt="profile"
+          src={data.userImage}
           style={{ width: "30px", height: "30px" }}
-          className="writerImage"
+          className="miniWriterImage"
         />
-        <p className="writerName">{nickname}</p>
+        <p className="miniWriterName">{data.nickname}</p>
       </div>
     </Link>
   );
@@ -81,7 +53,6 @@ export default function Posts() {
         credentials: "include",
       });
       const responseData = await response.json();
-      console.log(responseData);
       switch (responseData.status) {
         case 200:
           if (responseData.data.length === 0) {
@@ -91,7 +62,6 @@ export default function Posts() {
           setResult(responseData.data);
           return;
         case 401:
-          alert("로그인 하십시오");
           navigate("/");
           return;
         default:
@@ -105,7 +75,7 @@ export default function Posts() {
 
   return (
     <section className="main">
-      <span className="title">
+      <span className="postsTitle">
         <p>
           안녕하세요, <br />
           아무 말 대잔치 <strong>게시판</strong> 입니다.

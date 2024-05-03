@@ -45,7 +45,7 @@ export default function SignUp() {
     //이메일 형식 안맞을 시
     const emailForm = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (email && (!emailForm.test(email) || email.length < 5)) {
-      emailNotCorrect(true);
+      setEmailNotCorrect(true);
       return false;
     }
     setEmailNotCorrect(false);
@@ -213,6 +213,10 @@ export default function SignUp() {
 
   //이미지 변경 시
   function handleOnChangeProfileImage(event) {
+    if (event.target.files.length === 0) {
+      setProileImage(null);
+      return;
+    }
     reader.onload = (data) => {
       setProileImage(data.target.result);
     };
@@ -241,7 +245,7 @@ export default function SignUp() {
   }
 
   return (
-    <div className="main">
+    <div className="signUpMain">
       <p className="mainTitle">회원가입</p>
       <form className="signUpContainer">
         <div className="topContainer">
@@ -342,7 +346,7 @@ export default function SignUp() {
             </label>
             <input
               type="text"
-              id="nicknameInput"
+              id="nicknameSignUpInput"
               maxLength="10"
               required
               onBlur={handleOnBlurNickname}

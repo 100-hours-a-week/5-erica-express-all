@@ -1,7 +1,7 @@
-import "../../styles/LogIn.css";
 import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { backHost } from "../../static";
+import "../../styles/LogIn.css";
 
 export default function LogIn() {
   const email = useRef("");
@@ -72,10 +72,10 @@ export default function LogIn() {
 
   return (
     <section className="logIn">
-      <div className="logInTitle">로그인</div>
+      <div className="title">로그인</div>
       <form className="logInContent">
         <div className="emailLogInContainer">
-          <label htmlFor="email" className="title">
+          <label htmlFor="email" className="logInTitle">
             이메일
           </label>
           <input
@@ -88,7 +88,7 @@ export default function LogIn() {
           />
         </div>
         <div className="passwordLogInContainer">
-          <label htmlFor="password" className="title">
+          <label htmlFor="password" className="logInTitle">
             비밀번호
           </label>
           <input

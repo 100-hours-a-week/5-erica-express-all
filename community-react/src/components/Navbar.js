@@ -4,10 +4,8 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 function UserProfile() {
-  const [result, setResult] = useState([]);
   const [profileImage, setProfileImage] = useState("");
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,15 +20,17 @@ function UserProfile() {
         const responseData = await response.json();
         if (responseData.status === 401) {
           alert("로그인 하십시오");
+          navigate("/");
+          return;
         }
-        setResult(responseData);
         setProfileImage(responseData.data.profile_image);
       } catch (error) {
         console.log(error);
+        return;
       }
     };
     fetchData();
-  }, [result.status, location]);
+  }, [navigate]);
 
   async function handleOnClickLogOut() {
     const response = await fetch(`${backHost}/api/users/logOut`, {
@@ -57,7 +57,14 @@ function UserProfile() {
 
   return (
     <div className="userSetting">
-      <img alt="profile" className="profileImage" src={profileImage} />
+      {profileImage ? (
+        <img alt="profile" className="profileImage" src={profileImage} />
+      ) : (
+        <div
+          className="profileImage"
+          style={{ backgroundColor: "#f4f5f7" }}
+        ></div>
+      )}
       <div className="settingList">
         <Link to="/user/update" className="profileUpdate setting">
           회원정보수정
@@ -95,14 +102,22 @@ export default function Navbar() {
   return (
     <section className="navbar">
       <div className="navbarContainer">
-        {showBackButton ? <BackButton /> : null}
+        {showBackButton ? (
+          <BackButton />
+        ) : (
+          <div style={{ width: "36px", height: "1px" }}></div>
+        )}
         <Link
           className="navbarTitle"
           to={pathname === "/" || pathname === "/signUp" ? "" : "/posts"}
         >
           아무 말 대잔치
         </Link>
-        {showProfile ? <UserProfile /> : null}
+        {showProfile ? (
+          <UserProfile />
+        ) : (
+          <div style={{ width: "36px", height: "1px" }}></div>
+        )}
       </div>
     </section>
   );
