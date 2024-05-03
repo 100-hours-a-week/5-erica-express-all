@@ -134,7 +134,7 @@ export const deleteUserModel = (id) => {
   if (!id) {
     return false;
   }
-  const user = checkUserId(id);
+  const user = checkUserIdModel(id);
   if (!user) {
     return false;
   }

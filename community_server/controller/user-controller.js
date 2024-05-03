@@ -207,7 +207,7 @@ const updateUserpassword = (req, res) => {
 };
 
 const deleteUser = (req, res) => {
-  const userId = Number(req.userId);
+  const userId = Number(req.session.user.userId);
 
   if (!userId) {
     return res
