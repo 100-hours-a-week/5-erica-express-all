@@ -13,6 +13,10 @@
   text-align: center;
 }
 
+.helperTextContainer {
+  min-height: 3rem;
+}
+
 .logIn {
   margin: 13rem auto;
   width: 35rem;
@@ -81,8 +85,4 @@ input {
   text-decoration: none;
   background-color: none;
   color: black;
-}
-
-.helperTextContainer {
-  min-height: 3rem;
 }
