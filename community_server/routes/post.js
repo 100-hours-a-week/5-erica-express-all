@@ -22,4 +22,7 @@ router.delete("/:id", getPostUser, postController.deletePost);
 //게시물 작성자 비교
 router.post("/checkOwner", postController.checkPostOwner);
 
+//게시물 수정시 내용 불러오기
+router.get("/:id/update", getPostUser, postController.getUpdatePost);
+
 export default router;

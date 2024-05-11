@@ -55,6 +55,31 @@ const getPost = (req, res) => {
   return res.status(200).json({ status: 200, message: null, data: post });
 };
 
+const getUpdatePost = (req, res) => {
+  const id = Number(req.params.id);
+  if (!id) {
+    return res
+      .status(400)
+      .json({ status: 400, message: "invalid_post_id", data: null });
+  }
+
+  const post = getPostModel(id);
+
+  if (!post) {
+    return res
+      .status(404)
+      .json({ status: 404, message: "cannot_found_post", data: null });
+  }
+
+  //TODO: 서버로 띄울 시 활셩화 필요
+  // post.postImage = post.postImage.replace(
+  //   "http://localhost:8000",
+  //   `https://${req.headers.host}`
+  // );
+
+  return res.status(200).json({ status: 200, message: null, data: post });
+};
+
 const getPostImage = (req, res) => {
   const postId = Number(req.params.postId);
 
@@ -204,6 +229,7 @@ export const postController = {
   getPosts,
   getPost,
   getPostImage,
+  getUpdatePost,
   addPost,
   updatePost,
   deletePost,
