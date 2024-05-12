@@ -299,6 +299,18 @@ const logOut = (req, res) => {
   res.status(200).json({ status: 200, message: "log_out_success", data: null });
 };
 
+const checkLogIn = (req, res) => {
+  if (req.session.user) {
+    return res
+      .status(200)
+      .json({ status: 200, message: "authenticated", data: "" });
+  }
+
+  return res
+    .status(401)
+    .json({ status: 401, message: "unauthenticated", data: "" });
+};
+
 export const userController = {
   getUsers,
   getUser,
@@ -311,4 +323,5 @@ export const userController = {
   duplicateEmail,
   duplicateNickname,
   logOut,
+  checkLogIn,
 };

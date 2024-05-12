@@ -14,6 +14,9 @@ router.get("/user", getAuthUser, userController.getUser);
 //회원가입
 router.post("/signup", validation, userController.addUser);
 
+//로그인 확인
+router.get("/login", userController.checkLogIn);
+
 //로그인
 router.post("/login", userController.logInUser);
 
