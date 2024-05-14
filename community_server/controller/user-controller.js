@@ -24,7 +24,7 @@ const getUsers = (req, res) => {
 };
 
 const getUser = (req, res) => {
-  const userId = req.user.userId;
+  const userId = req.session.user.userId;
 
   if (!userId) {
     return res
@@ -86,7 +86,7 @@ const addUser = (req, res) => {
   });
 };
 
-const logInUser = (req, res) => {
+const logInUser = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email) {
@@ -95,7 +95,7 @@ const logInUser = (req, res) => {
       .json({ status: 400, message: "required_email", data: null });
   }
 
-  const user = logInUserModel(email, password);
+  const user = await logInUserModel(email, password);
 
   if (!user) {
     return res

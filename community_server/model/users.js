@@ -2,6 +2,7 @@ import { users } from "../model/data.js";
 import fs from "fs";
 import path from "path";
 import { getLocalDateTime } from "../tools/dataUtils.js";
+import bcrypt from "bcryptjs";
 
 const __dirname = path.resolve();
 
@@ -59,11 +60,15 @@ export const addUserModel = (data) => {
   //data 형식: { email, nickname, password, profile_image }
   const userId = userNum + 1;
   const date = getLocalDateTime();
+
+  const salt = bcrypt.genSaltSync(10);
+  const hash = bcrypt.hashSync(data.password, salt);
+
   const newUser = {
     userId,
     email: data.email,
     nickname: data.nickname,
-    password: data.password,
+    password: hash,
     profile_image: data.profile_image,
     created_at: date,
     updated_at: date,
@@ -76,16 +81,17 @@ export const addUserModel = (data) => {
 };
 
 //유저 로그인 로직 -> 유저 아이디 반환
-export const logInUserModel = (email, password) => {
+export const logInUserModel = async (email, password) => {
   const user = users.find(
     (user) => user.email === email && user.deleted_at === null
   );
-  if (!user) {
+
+  const passwordCorrect = await bcrypt.compare(password, user.password);
+
+  if (!user || !passwordCorrect) {
     return null;
   }
-  if (user.password !== password) {
-    return null;
-  }
+
   return user;
 };
 
