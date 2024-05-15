@@ -25,11 +25,9 @@ const getUsers = (req, res) => {
 
 const getUser = (req, res) => {
 	const userId = req.session.user.userId
-
 	if (!userId) return res.status(400).json({ status: 404, message: 'invalid_user_id', data: null })
 
 	const user = checkUserModel(userId)
-
 	if (!user) return res.status(404).json({ status: 404, message: 'not_fount_user', data: null })
 
 	//TODO: 서버로 띄울 시 활셩화 필요
@@ -38,7 +36,7 @@ const getUser = (req, res) => {
 	//   `https://${req.headers.host}`
 	// );
 
-	if (user) return res.status(200).json({ status: 200, message: null, data: user })
+	return res.status(200).json({ status: 200, message: null, data: user })
 }
 
 const addUser = (req, res) => {
@@ -93,9 +91,8 @@ const updateUserProfile = (req, res) => {
 
 	if (!profile_image.includes(req.headers.host)) {
 		const saved_image_url = addUserImageModel(profile_image)
-		if (!saved_image_url) {
-			return res.status(500).json({ status: 500, message: 'internal_server_error', data: null })
-		}
+
+		if (!saved_image_url) return res.status(500).json({ status: 500, message: 'internal_server_error', data: null })
 		user_server_url = saved_image_url
 		console.log(user_server_url)
 	} else {
@@ -106,9 +103,7 @@ const updateUserProfile = (req, res) => {
 
 	if (!checkUserIdModel(userId)) return res.status(404).json({ status: 404, message: 'not_found_user', data: null })
 
-	if (!checkUserIdModel(userId) && !profile_image) {
-		return res.status(500).json({ status: 500, message: 'internal_server_error', data: null })
-	}
+	if (!profile_image) return res.status(500).json({ status: 500, message: 'internal_server_error', data: null })
 
 	const success = updateUserProfileModel({
 		userId,
@@ -131,11 +126,11 @@ const updateUserpassword = (req, res) => {
 
 	if (!checkUserIdModel(userId)) return res.status(404).json({ status: 404, message: 'not_found_user', data: null })
 
-	const success = updateUserPasswordModel({ userId, password })
-
-	if (!success) return res.status(500).json({ status: 500, message: 'internal_server_error', data: null })
+	if (!updateUserPasswordModel({ userId, password }))
+		return res.status(500).json({ status: 500, message: 'internal_server_error', data: null })
 
 	req.session.destroy()
+
 	return res.status(201).json({
 		status: 201,
 		message: 'change_user_password_success',
@@ -150,17 +145,13 @@ const deleteUser = (req, res) => {
 
 	if (!checkUserIdModel(userId)) return res.status(404).json({ status: 404, message: 'not_found_user', data: null })
 
-	const isSuccess = deleteUserModel(userId)
-
-	if (isSuccess) return res.status(200).json({ status: 200, message: 'delete_user-data_success', data: null })
+	if (deleteUserModel(userId))
+		return res.status(200).json({ status: 200, message: 'delete_user-data_success', data: null })
 }
 
 const duplicateEmail = (req, res) => {
-	const email = req.params.email
-
-	const isExist = checkUserEmailModel(email)
-
-	if (isExist) return res.status(400).json({ status: 400, message: 'already_exist_email', data: null })
+	if (checkUserEmailModel(req.params.email))
+		return res.status(400).json({ status: 400, message: 'already_exist_email', data: null })
 
 	return res.status(200).json({ status: 200, message: 'available_email', data: null })
 }
@@ -183,9 +174,7 @@ const duplicateNickname = (req, res) => {
 }
 
 const duplicateSignUpNickname = (req, res) => {
-	const nickname = req.params.nickname
-
-	if (checkUserNicknameModel(nickname))
+	if (checkUserNicknameModel(req.params.nickname))
 		return res.status(400).json({ status: 400, message: 'already_exist_nickname', data: null })
 
 	return res.status(200).json({ status: 200, message: 'available_nickname', data: null })

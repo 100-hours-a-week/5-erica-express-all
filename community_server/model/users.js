@@ -1,4 +1,4 @@
-import { posts, users } from '../model/data.js'
+import { comments, posts, users } from '../model/data.js'
 import fs from 'fs'
 import path from 'path'
 import { getLocalDateTime } from '../tools/dataUtils.js'
@@ -86,13 +86,39 @@ export const logInUserModel = async (email, password) => {
 //유저 정보 수정 로직
 export const updateUserProfileModel = data => {
 	const { userId, nickname, profile_image } = data
+	if (!nickname && !profile_image) return null
 
 	const userIndex = users.findIndex(user => user.userId === userId && user.deleted_at === null)
 
-	if (!nickname && !profile_image) return null
-
 	users[userIndex].nickname = nickname
 	users[userIndex].profile_image = profile_image
+
+	//유저가 작성한 글 유저이미지, 닉네임 수정
+	const userPostsIndex = []
+
+	posts.forEach((post, index) => {
+		if (post.userId === userId) {
+			userPostsIndex.push(index)
+		}
+	})
+
+	userPostsIndex.forEach(index => {
+		posts[index].nickname = nickname
+		posts[index].userImage = profile_image
+	})
+
+	//유저가 작성한 댓글 유저이미지, 닉네임 수정
+	const userCommentsIndex = []
+	comments.forEach((comment, index) => {
+		if (comment.userId === userId) {
+			userCommentsIndex.push(index)
+		}
+	})
+
+	userCommentsIndex.forEach(index => {
+		comments[index].nickname = nickname
+		comments[index].profile_image = profile_image
+	})
 
 	return users[userIndex]
 }
@@ -100,12 +126,14 @@ export const updateUserProfileModel = data => {
 //유저 비밀번호 수정 로직
 export const updateUserPasswordModel = data => {
 	const { userId, password } = data
+	if (!userId || !password) return false
 
 	const userIndex = users.findIndex(user => user.userId === userId && user.deleted_at === null)
 
-	if (!userId || !password) return false
+	const salt = bcrypt.genSaltSync(10)
+	const hash = bcrypt.hashSync(password, salt)
 
-	users[userIndex].password = data.password
+	users[userIndex].password = hash
 
 	return users[userIndex]
 }
