@@ -11,7 +11,13 @@ let postNum = posts.length
 //post관련 서비스
 //게시물 상세 조회 로직
 export const getPostModel = id => {
-	return posts.find(post => post.postId === id && post.deleted_at === null)
+	console.log('불러와짐')
+	const postIndex = posts.findIndex(post => post.postId === id && post.deleted_at === null)
+	if (postIndex === -1) return null
+	posts[postIndex].view += 1
+	const post = posts.find(post => post.postId === id && post.deleted_at === null)
+
+	return post
 }
 
 export const checkPostOwnerModel = data => {

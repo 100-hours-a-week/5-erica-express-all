@@ -1,4 +1,4 @@
-import { comments } from './data.js'
+import { comments, posts } from './data.js'
 import { checkUserModel } from './users.js'
 import { getLocalDateTime } from '../tools/dataUtils.js'
 
@@ -46,6 +46,10 @@ export const addCommentModel = data => {
 		updated_at: date,
 		deleted_at: null
 	}
+
+	const postIndex = posts.findIndex(post => post.postId === data.postId)
+	posts[postIndex].comment_count += 1
+
 	commentNum += 1
 	comments.push(newComment)
 	return true
@@ -61,9 +65,14 @@ export const updateCommentModel = data => {
 	return comments[commentIndex]
 }
 
-export const deleteCommentModel = commentId => {
+export const deleteCommentModel = (commentId, postId) => {
 	const commentIndex = comments.findIndex(comment => comment.commentId === commentId && comment.deleted_at === null)
+
+	const postIndex = posts.findIndex(post => post.postId === postId)
+	posts[postIndex].comment_count -= 1
+
 	const date = getLocalDateTime()
 	comments[commentIndex].deleted_at = date
+
 	return true
 }

@@ -59,7 +59,8 @@ const updateComment = (req, res) => {
 
 const deleteComment = (req, res) => {
 	const commentId = Number(req.params.commentId)
-	const isSuccess = deleteCommentModel(commentId)
+	const postId = Number(req.params.postId)
+	const isSuccess = deleteCommentModel(commentId, postId)
 
 	if (!isSuccess) return res.status(500).json({ status: 500, message: 'internal_server_error', data: null })
 

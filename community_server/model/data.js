@@ -123,7 +123,7 @@ export const posts = [
 		created_at: '2024-04-04 00:00:00',
 		updated_at: '2024-04-04 00:00:00',
 		deleted_at: null,
-		view: 19000,
+		view: 0,
 		like: 12,
 		comment_count: 1
 	},
@@ -138,7 +138,7 @@ export const posts = [
 		created_at: '2024-04-04 00:00:00',
 		updated_at: '2024-04-04 00:00:00',
 		deleted_at: null,
-		view: 1000,
+		view: 0,
 		like: 12,
 		comment_count: 1
 	},
@@ -153,7 +153,7 @@ export const posts = [
 		created_at: '2024-04-04 00:00:00',
 		updated_at: '2024-04-04 00:00:00',
 		deleted_at: null,
-		view: 10000,
+		view: 0,
 		like: 12,
 		comment_count: 1
 	},
