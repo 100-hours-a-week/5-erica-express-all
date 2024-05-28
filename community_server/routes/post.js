@@ -7,6 +7,15 @@ const router = express.Router()
 //게시물 목록 불러오기 --OK
 router.get('/', getAuthUser, postController.getPosts)
 
+//내 게시물
+router.get('/myPosts', getAuthUser, postController.getMyPosts)
+
+//고민 게시물
+router.get('/other', getAuthUser, postController.getOtherPosts)
+
+//개발 게시물
+router.get('/coding', getAuthUser, postController.getCodingPosts)
+
 //게시물 상세 불러오기 --OK
 router.get('/:id', getAuthUser, postController.getPost)
 

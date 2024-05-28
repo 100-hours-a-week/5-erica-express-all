@@ -41,6 +41,9 @@ router.post('/signup/nickname/:nickname', userController.duplicateSignUpNickname
 //로그아웃
 router.delete('/logOut', getAuthUser, userController.logOut)
 
+//내가 쓴 글, 댓글 수
+router.get('/myWrite', getAuthUser, userController.getMyCount)
+
 //이미지 업로드
 // router.post("/upload", userController.postImage);
 
