@@ -172,3 +172,16 @@ export const addUserImageModel = image => {
 	const imageUrl = `http://localhost:8000/images/profile/${imageName}`
 	return imageUrl
 }
+
+//게시글 수, 댓글 수 가져오기
+export const getUserWriteCount = userId => {
+	const postCount = posts.filter(post => {
+		return post.userId === userId && post.deleted_at === null
+	}).length
+
+	const commentCount = comments.filter(comment => {
+		return comment.userId === userId && comment.deleted_at === null
+	}).length
+
+	return { postCount, commentCount }
+}

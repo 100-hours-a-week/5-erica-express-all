@@ -11,13 +11,24 @@ let postNum = posts.length
 //post관련 서비스
 //게시물 상세 조회 로직
 export const getPostModel = id => {
-	console.log('불러와짐')
 	const postIndex = posts.findIndex(post => post.postId === id && post.deleted_at === null)
 	if (postIndex === -1) return null
 	posts[postIndex].view += 1
 	const post = posts.find(post => post.postId === id && post.deleted_at === null)
 
 	return post
+}
+
+export const getMyPostsModel = userId => {
+	return posts.filter(post => post.userId === userId && post.deleted_at === null).reverse()
+}
+
+export const getOtherPostsModel = () => {
+	return posts.filter(post => post.type === 'other' && post.deleted_at === null).reverse()
+}
+
+export const getCodingPostsModel = () => {
+	return posts.filter(post => post.type === 'coding' && post.deleted_at === null).reverse()
 }
 
 export const checkPostOwnerModel = data => {
@@ -37,6 +48,11 @@ export const getPostsModel = () => {
 //이미지 저장
 export const addPostImageModel = image => {
 	const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)
+
+	if (image.includes('localhost')) {
+		return image
+	}
+
 	if (!matches || matches.length !== 3) {
 		console.log('Wrong Image Type')
 		return null
@@ -72,6 +88,7 @@ export const addPostModel = data => {
 		userId: data.userId,
 		nickname: user.nickname,
 		title: data.title,
+		type: data.type,
 		content: data.content,
 		postImage: data.postImage,
 		userImage: user.profile_image,
@@ -90,7 +107,7 @@ export const addPostModel = data => {
 
 //게시물 수정 로직
 export const updatePostModel = data => {
-	const { id, title, content, postImage } = data
+	const { id, title, content, postImage, type } = data
 	const postIndex = posts.findIndex(post => post.postId === id && post.deleted_at === null)
 	if (title) {
 		posts[postIndex].title = title
@@ -102,6 +119,10 @@ export const updatePostModel = data => {
 
 	if (postImage) {
 		posts[postIndex].postImage = postImage
+	}
+
+	if (type) {
+		posts[postIndex].type = type
 	}
 
 	return posts[postIndex]
