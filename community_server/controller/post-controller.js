@@ -5,7 +5,10 @@ import {
 	addPostImageModel,
 	addPostModel,
 	updatePostModel,
-	deletePostModel
+	deletePostModel,
+	getMyPostsModel,
+	getOtherPostsModel,
+	getCodingPostsModel
 } from '../model/posts.js'
 
 //--------------------------------------------------------
@@ -13,7 +16,7 @@ import {
 const getPosts = (req, res) => {
 	// console.log(req.query.cursor);
 	// const cursor = Number(req.query.cursor);
-	const posts = getPostsModel()
+	const posts = getPostsModel().reverse()
 
 	//TODO: 서버로 띄울 시 활셩화 필요
 	// posts.forEach((post) => {
@@ -76,7 +79,7 @@ const getPostImage = (req, res) => {
 
 const addPost = (req, res) => {
 	const userId = Number(req.session.user.userId)
-	const { title, content, postImageSrc } = req.body
+	const { title, content, postImageSrc, type } = req.body
 	let post_server_url = ''
 
 	if (!userId) return res.status(400).json({ status: 400, message: 'invalid_user_id', data: null })
@@ -89,6 +92,7 @@ const addPost = (req, res) => {
 
 	const postId = addPostModel({
 		userId,
+		type,
 		title,
 		content,
 		postImage: post_server_url
@@ -105,8 +109,7 @@ const addPost = (req, res) => {
 
 const updatePost = (req, res) => {
 	const id = Number(req.params.id)
-	const { title, content, postImageInput } = req.body
-
+	const { title, content, postImageInput, type } = req.body
 	let post_server_url = ''
 
 	if (!title && !content && !postImageInput) {
@@ -127,6 +130,7 @@ const updatePost = (req, res) => {
 
 	const postId = updatePostModel({
 		id,
+		type,
 		title,
 		content,
 		postImage: post_server_url
@@ -159,6 +163,21 @@ const checkPostOwner = (req, res) => {
 	return res.status(200).json({ status: 200, message: 'is_owner', data: null })
 }
 
+const getMyPosts = (req, res) => {
+	const myPosts = getMyPostsModel(Number(req.session.user.userId))
+	return res.status(200).json({ status: 200, message: '', data: myPosts })
+}
+
+const getOtherPosts = (req, res) => {
+	const otherPosts = getOtherPostsModel()
+	return res.status(200).json({ status: 200, message: '', data: otherPosts })
+}
+
+const getCodingPosts = (req, res) => {
+	const codingPosts = getCodingPostsModel()
+	return res.status(200).json({ status: 200, message: '', data: codingPosts })
+}
+
 export const postController = {
 	getPosts,
 	getPost,
@@ -167,5 +186,8 @@ export const postController = {
 	addPost,
 	updatePost,
 	deletePost,
-	checkPostOwner
+	checkPostOwner,
+	getMyPosts,
+	getOtherPosts,
+	getCodingPosts
 }

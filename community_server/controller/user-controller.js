@@ -9,7 +9,8 @@ import {
 	updateUserProfileModel,
 	updateUserPasswordModel,
 	deleteUserModel,
-	addUserImageModel
+	addUserImageModel,
+	getUserWriteCount
 } from '../model/users.js'
 
 const getUsers = (req, res) => {
@@ -25,6 +26,7 @@ const getUsers = (req, res) => {
 
 const getUser = (req, res) => {
 	const userId = req.session.user.userId
+
 	if (!userId) return res.status(400).json({ status: 404, message: 'invalid_user_id', data: null })
 
 	const user = checkUserModel(userId)
@@ -78,6 +80,8 @@ const logInUser = async (req, res) => {
 	if (!user) return res.status(404).json({ status: 404, message: 'invalid_email_or_password', data: null })
 
 	req.session.user = user
+
+	//req.session -> {user: {userId: 1, email: "", }}
 	return res.status(200).json({ status: 200, message: 'login_success', data: user })
 }
 
@@ -191,6 +195,11 @@ const checkLogIn = (req, res) => {
 	return res.status(401).json({ status: 401, message: 'unauthenticated', data: '' })
 }
 
+const getMyCount = (req, res) => {
+	const data = getUserWriteCount(req.session.user.userId)
+	return res.status(200).json({ status: 200, message: '', data })
+}
+
 export const userController = {
 	getUsers,
 	getUser,
@@ -203,5 +212,6 @@ export const userController = {
 	duplicateEmail,
 	duplicateNickname,
 	logOut,
-	checkLogIn
+	checkLogIn,
+	getMyCount
 }
