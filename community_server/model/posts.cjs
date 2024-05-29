@@ -1,33 +1,27 @@
 const path = require('path')
 const fs = require('fs')
-const { getLocalDateTime } = require('../tools/dataUtils.cjs')
+const {
+	postsQuery,
+	postQuery,
+	myPostsQuery,
+	otherPostsQuery,
+	codingPostsQuery,
+	addPostQuery,
+	updatePostQuery,
+	updatePostViewQuery,
+	deletePostQuery
+} = require('../queries/posts.cjs')
 
-const db = require('../config/mysql.cjs')
-const conn = db.init()
+const { db_info } = require('../config/mysql.cjs')
+const conn = mysql.createConnection(db_info)
 
 //post관련 서비스
 //게시물 상세 조회 로직
 const getPostsModel = () => {
-	const sql = `SELECT 
-      posts.*, 
-      users.nickname, 
-      users.profileImage,
-      (SELECT COUNT(*) FROM comments WHERE comments.postId = posts.postId AND comments.deleted_at IS NULL) AS comment_count
-    FROM 
-      posts 
-    INNER JOIN 
-      users 
-    ON 
-      posts.userId = users.userId 
-    WHERE 
-      posts.deleted_at IS NULL
-    ORDER BY
-      posts.created_at DESC;
-  `
 	return new Promise((resolve, reject) => {
-		conn.query(sql, function (err, result) {
+		conn.query(postsQuery(), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 			} else {
 				resolve(result)
@@ -37,27 +31,10 @@ const getPostsModel = () => {
 }
 
 const getPostModel = id => {
-	const sql = `SELECT 
-      posts.*, 
-      users.nickname, 
-      users.profileImage,
-      (SELECT COUNT(*) FROM comments WHERE comments.postId = posts.postId AND comments.deleted_at IS NULL) AS comment_count
-    FROM 
-      posts 
-    INNER JOIN 
-      users 
-    ON 
-      posts.userId = users.userId 
-    WHERE 
-      posts.postId = ${id} 
-    AND 
-      posts.deleted_at IS NULL;
-`
-
 	return new Promise((resolve, reject) => {
-		conn.query(sql, function (err, result) {
+		conn.query(postQuery(id), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 			} else {
 				resolve(result)
@@ -67,24 +44,23 @@ const getPostModel = id => {
 }
 
 const updatePostViewModel = id => {
-	const sql = `Update posts SET view = view + 1 WHERE posts.postId = ${id} and posts.deleted_at IS NULL;`
 	new Promise((resolve, reject) => {
-		conn.query(sql, function (err, result) {
-			if (err) console.log('query is not excuted: ' + err)
+		conn.query(updatePostViewQuery(id), function (err, result) {
+			if (err) {
+				console.log(err)
+				reject(err)
+			} else {
+				resolve(true)
+			}
 		})
 	})
 }
 
 const getMyPostsModel = userId => {
-	const sql = `SELECT posts.*, users.nickname, users.profileImage 
-    FROM posts INNER JOIN users ON posts.userId = users.userId 
-    WHERE users.userId = ${userId} and posts.deleted_at IS NULL 
-    ORDER BY posts.created_at DESC; `
-
 	return new Promise((resolve, reject) => {
-		conn.query(sql, function (err, result) {
+		conn.query(myPostsQuery(userId), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 			} else {
 				resolve(result)
@@ -94,15 +70,10 @@ const getMyPostsModel = userId => {
 }
 
 const getOtherPostsModel = () => {
-	const sql = `SELECT posts.*, users.nickname, users.profileImage 
-  FROM posts INNER JOIN users ON posts.userId = users.userId 
-  WHERE posts.type = "other" and posts.deleted_at IS NULL 
-  ORDER BY posts.created_at DESC; `
-
 	return new Promise((resolve, reject) => {
-		conn.query(sql, function (err, result) {
+		conn.query(otherPostsQuery(), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 			} else {
 				resolve(result)
@@ -112,15 +83,10 @@ const getOtherPostsModel = () => {
 }
 
 const getCodingPostsModel = () => {
-	const sql = `SELECT posts.*, users.nickname, users.profileImage 
-FROM posts INNER JOIN users ON posts.userId = users.userId 
-WHERE posts.type = "coding" and posts.deleted_at IS NULL 
-ORDER BY posts.created_at DESC; `
-
 	return new Promise((resolve, reject) => {
-		conn.query(sql, function (err, result) {
+		conn.query(codingPostsQuery(), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 			} else {
 				resolve(result)
@@ -173,28 +139,10 @@ const addPostImageModel = image => {
 
 //게시물 작성 로직
 const addPostModel = data => {
-	const date = getLocalDateTime()
-
-	const sql = `INSERT INTO posts (
-    userId, 
-    postImage, 
-    title, 
-    content, 
-    created_at, 
-    type
-) VALUES (
-    ${data.userId}, 
-    '${data.postImage}', 
-    '${data.title}',
-    '${data.content}',  
-    '${date}',
-    '${data.type}'   
-);
- `
 	return new Promise((resolve, reject) => {
-		conn.query(sql, function (err, result) {
+		conn.query(addPostQuery(data), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 			} else {
 				resolve(result.insertId)
@@ -205,13 +153,10 @@ const addPostModel = data => {
 
 //게시물 수정 로직
 const updatePostModel = data => {
-	const { id, title, content, postImage, type } = data
-	const sql = `Update posts SET title = "${title}", content = "${content}", postImage = "${postImage}", type="${type}"  WHERE posts.postId = ${id} and posts.deleted_at IS NULL ; `
-
 	new Promise((resolve, reject) => {
-		conn.query(sql, function (err, result) {
+		conn.query(updatePostQuery(data), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 			} else {
 				resolve(result)
@@ -219,16 +164,15 @@ const updatePostModel = data => {
 		})
 	})
 
-	return id
+	return data.id
 }
 
 //게시물 삭제 로직
 const deletePostModel = async id => {
-	const sql = `Delete from posts where postId = ${id}`
 	return new Promise((resolve, reject) => {
-		conn.query(sql, function (err, result) {
+		conn.query(deletePostQuery(id), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 				return false
 			} else {

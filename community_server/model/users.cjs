@@ -1,23 +1,28 @@
 const fs = require('fs')
 const path = require('path')
-const { getLocalDateTime } = require('../tools/dataUtils.cjs')
 const bcrypt = require('bcryptjs')
 
-const db = require('../config/mysql.cjs')
-const conn = db.init()
+const { db_info } = require('../config/mysql.cjs')
+const conn = mysql.createConnection(db_info)
+
+const {
+	getUserQuery,
+	nicknameQuery,
+	emailQuery,
+	addUserQuery,
+	updateUserPasswordQuery,
+	updateUserProfileQuery,
+	deleteUserQuery,
+	getPostCountQuery,
+	getCommentCountQuery
+} = require('../queries/users.cjs')
 
 //userId 유효성 조회 로직
 const checkUserIdModel = userId => {
-	/*
-	 * true: 해당 id를 가진 user 존재
-	 * fale: 해당 id를가진 user 존재 X
-	 */
-
-	const sql = `Select * from users where userId = ${userId} and deleted_at is NULL`
 	return new Promise((resolve, reject) => {
-		conn.query(sql, function (err, result) {
+		conn.query(getUserQuery(userId), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 			} else {
 				if (result.length != 0) {
@@ -29,11 +34,10 @@ const checkUserIdModel = userId => {
 }
 
 const checkUserModel = userId => {
-	const sql = `Select * from users where userId = ${userId} and deleted_at is NULL`
 	return new Promise((resolve, reject) => {
-		conn.query(sql, function (err, result) {
+		conn.query(getUserQuery(userId), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 			} else {
 				if (result.length != 0) {
@@ -45,16 +49,10 @@ const checkUserModel = userId => {
 }
 
 const checkUserNicknameModel = nickname => {
-	/*
-	 * true: 해당 nickname을 가진 user 존재
-	 * false: 해당 nickname을 가진 user 존재 X
-	 */
-
-	const sql = `Select * from users where nickname = '${nickname}' and deleted_at is NULL`
 	return new Promise((resolve, reject) => {
-		conn.query(sql, function (err, result) {
+		conn.query(nicknameQuery(nickname), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 			} else {
 				if (result.length != 0) {
@@ -67,11 +65,10 @@ const checkUserNicknameModel = nickname => {
 }
 
 const checkUserEmailModel = email => {
-	const sql = `Select * from users where email = '${email}'`
 	return new Promise((resolve, reject) => {
-		conn.query(sql, function (err, result) {
+		conn.query(emailQuery(email), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 			} else {
 				if (result.length != 0) {
@@ -81,38 +78,19 @@ const checkUserEmailModel = email => {
 			}
 		})
 	})
-
-	/*
-	 * true: 해당 email을 가진 user 존재
-	 * false: 해당 email을 가진 user 존재 X
-	 */
 }
 
 //유저 등록 로직
 const addUserModel = data => {
-	const date = getLocalDateTime()
-
 	const salt = bcrypt.genSaltSync(10)
 	const hash = bcrypt.hashSync(data.password, salt)
 
-	const sql = `INSERT INTO users (
-    email,
-    nickname,
-    password,
-    profileImage,
-    created_at
-  ) VALUES (
-    '${data.email}',
-    '${data.nickname}',
-    '${hash}',
-    '${data.profile_image}',
-    '${date}'
-  );`
+	const addData = { email: data.email, nickname: data.nickname, password: hash, profileImage: data.profile_image }
 
 	return new Promise((resolve, reject) => {
-		conn.query(sql, function (err, result) {
+		conn.query(addUserQuery(addData), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 			} else {
 				resolve(result.insertId)
@@ -122,15 +100,14 @@ const addUserModel = data => {
 }
 
 const checkLogInModel = email => {
-	const sql = `Select * from users where email = '${email}'`
 	return new Promise((resolve, reject) => {
-		conn.query(sql, function (err, result) {
+		conn.query(emailQuery(email), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 				return false
 			} else {
-				resolve(result)
+				resolve(result[0])
 			}
 		})
 	})
@@ -142,7 +119,7 @@ const logInUserModel = async (email, password) => {
 	if (!user) {
 		return false
 	}
-	const passwordCorrect = await bcrypt.compare(password, user[0].password)
+	const passwordCorrect = await bcrypt.compare(password, user.password)
 
 	if (!passwordCorrect) return false
 
@@ -151,21 +128,12 @@ const logInUserModel = async (email, password) => {
 
 //유저 정보 수정 로직
 const updateUserProfileModel = data => {
-	const { userId, nickname, profile_image } = data
-	if (!nickname && !profile_image) return null
+	if (!data.nickname && !data.profile_image) return null
 
-	const sql = `
-    UPDATE users
-    SET 
-      nickname = '${nickname}',
-      profileImage = '${profile_image}'
-    WHERE 
-      userId = ${userId} and deleted_at is NULL;
-  `
 	return new Promise((resolve, reject) => {
-		conn.query(sql, function (err, result) {
+		conn.query(updateUserProfileQuery(data), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 			} else {
 				resolve(true)
@@ -181,17 +149,12 @@ const updateUserPasswordModel = data => {
 	const salt = bcrypt.genSaltSync(10)
 	const hash = bcrypt.hashSync(password, salt)
 
-	const sql = `
-    UPDATE users
-    SET 
-      password = '${hash}'
-    WHERE 
-      userId = ${userId} and deleted_at is NULL;
-  `
+	const updateData = { password: hash, userId: data.userId }
+
 	return new Promise((resolve, reject) => {
-		conn.query(sql, function (err, result) {
+		conn.query(updateUserPasswordQuery(updateData), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 			} else {
 				resolve(true)
@@ -207,11 +170,10 @@ const deleteUserModel = async id => {
 	const user = await checkUserIdModel(id)
 	if (!user) return false
 
-	const sql = `Delete from users where userId = ${id}`
 	return new Promise((resolve, reject) => {
-		conn.query(sql, function (err, result) {
+		conn.query(deleteUserQuery(id), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 				return false
 			} else {
@@ -246,11 +208,10 @@ const addUserImageModel = image => {
 
 //게시글 수, 댓글 수 가져오기
 const getUserWriteCount = async userId => {
-	const sql1 = `Select count(*) As count from posts where userId = ${userId}`
 	const postCount = await new Promise((resolve, reject) => {
-		conn.query(sql1, function (err, result) {
+		conn.query(getPostCountQuery(userId), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 			} else {
 				const count = result[0].count
@@ -259,12 +220,10 @@ const getUserWriteCount = async userId => {
 		})
 	})
 
-	const sql2 = `Select count(*) As count from comments where userId = ${userId}`
-
 	const commentCount = await new Promise((resolve, reject) => {
-		conn.query(sql2, function (err, result) {
+		conn.query(getCommentCountQuery(userId), function (err, result) {
 			if (err) {
-				console.log('query is not executed: ' + err)
+				console.log(err)
 				reject(err)
 			} else {
 				const count = result[0].count
