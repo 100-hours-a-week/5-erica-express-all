@@ -2,7 +2,7 @@ const { checkPostOwnerModel } = require('../model/posts.cjs')
 const { checkCommentOwnerModel } = require('../model/comments.cjs')
 
 const getAuthUser = (req, res, next) => {
-	if (req.session.id && req.session.user) {
+	if (req.session && req.session.user) {
 		req.user = req.session.user
 		next()
 	} else {

@@ -71,17 +71,15 @@ const addUser = async (req, res) => {
 
 const logInUser = async (req, res) => {
 	const { email, password } = req.body
-
 	if (!email) return res.status(400).json({ status: 400, message: 'required_email', data: null })
 
 	const user = await logInUserModel(email, password)
-
 	if (!user) return res.status(404).json({ status: 404, message: 'invalid_email_or_password', data: null })
 
-	req.session.user = user[0]
+	req.session.user = user
 
 	//req.session -> {user: {userId: 1, email: "", }}
-	return res.status(200).json({ status: 200, message: 'login_success', data: user[0] })
+	return res.status(200).json({ status: 200, message: 'login_success', data: user })
 }
 
 //유저 프로필 변경
