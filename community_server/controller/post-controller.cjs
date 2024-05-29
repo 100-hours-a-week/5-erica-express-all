@@ -1,60 +1,63 @@
 const {
+	getPostsModel,
 	getPostModel,
 	checkPostOwnerModel,
-	getPostsModel,
 	addPostImageModel,
 	addPostModel,
 	updatePostModel,
 	deletePostModel,
 	getMyPostsModel,
 	getOtherPostsModel,
+	updatePostViewModel,
 	getCodingPostsModel
 } = require('../model/posts.cjs')
 
 //--------------------------------------------------------
 //실제 controller
-const getPosts = (req, res) => {
-	// console.log(req.query.cursor);
-	// const cursor = Number(req.query.cursor);
-	const posts = getPostsModel().reverse()
+const getPosts = async (req, res) => {
+	try {
+		const posts = await getPostsModel()
 
-	//TODO: 서버로 띄울 시 활셩화 필요
-	// posts.forEach((post) => {
-	//   post.postImage = post.postImage.replace(
-	//     "http://localhost:8000",
-	//     `https://${req.headers.host}`
-	//   );
-	//   post.userImage = post.userImage.replace(
-	//     "http://localhost:8000",
-	//     `https://${req.headers.host}`
-	//   );
-	// });
+		// TODO: 서버로 띄울 시 활성화 필요
+		// posts.forEach((post) => {
+		//   post.postImage = post.postImage.replace(
+		//     "http://localhost:8000",
+		//     `https://${req.headers.host}`
+		//   );
+		//   post.userImage = post.userImage.replace(
+		//     "http://localhost:8000",
+		//     `https://${req.headers.host}`
+		//   );
+		// });
 
-	return res.status(200).json({ status: 200, message: null, data: posts })
+		return res.status(200).json({ status: 200, message: null, data: posts })
+	} catch (err) {
+		console.error('Error fetching posts:', err)
+		return res.status(500).json({ status: 500, message: 'Internal server error', data: null })
+	}
 }
 
-const getPost = (req, res) => {
+const getPost = async (req, res) => {
 	const id = Number(req.params.id)
 	if (!id) return res.status(400).json({ status: 400, message: 'invalid_post_id', data: null })
+	await updatePostViewModel(id)
+	const post = await getPostModel(id)
 
-	const post = getPostModel(id)
-
-	if (!post) return res.status(404).json({ status: 404, message: 'cannot_found_post', data: null })
+	if (post.length === 0) return res.status(404).json({ status: 404, message: 'cannot_found_post', data: null })
 
 	//TODO: 서버로 띄울 시 활셩화 필요
 	// post.postImage = post.postImage.replace(
 	//   "http://localhost:8000",
 	//   `https://${req.headers.host}`
 	// );
-
 	return res.status(200).json({ status: 200, message: null, data: post })
 }
 
-const getUpdatePost = (req, res) => {
+const getUpdatePost = async (req, res) => {
 	const id = Number(req.params.id)
 	if (!id) return res.status(400).json({ status: 400, message: 'invalid_post_id', data: null })
 
-	const post = getPostModel(id)
+	const post = await getPostModel(id)
 
 	if (!post) return res.status(404).json({ status: 404, message: 'cannot_found_post', data: null })
 
@@ -77,7 +80,7 @@ const getPostImage = (req, res) => {
 	return res.status(200).json({ status: 200, message: 'load_image_success', data: { post_image } })
 }
 
-const addPost = (req, res) => {
+const addPost = async (req, res) => {
 	const userId = Number(req.session.user.userId)
 	const { title, content, postImageSrc, type } = req.body
 	let post_server_url = ''
@@ -90,7 +93,7 @@ const addPost = (req, res) => {
 		post_server_url = addPostImageModel(postImageSrc)
 	}
 
-	const postId = addPostModel({
+	const postId = await addPostModel({
 		userId,
 		type,
 		title,
@@ -107,7 +110,7 @@ const addPost = (req, res) => {
 	})
 }
 
-const updatePost = (req, res) => {
+const updatePost = async (req, res) => {
 	const id = Number(req.params.id)
 	const { title, content, postImageInput, type } = req.body
 	let post_server_url = ''
@@ -128,7 +131,7 @@ const updatePost = (req, res) => {
 
 	if (post_server_url === -1) return res.status(500).json({ status: 500, message: 'internal_sever_error', data: null })
 
-	const postId = updatePostModel({
+	const postId = await updatePostModel({
 		id,
 		type,
 		title,
@@ -141,40 +144,44 @@ const updatePost = (req, res) => {
 	return res.status(200).json({ status: 200, message: 'update_post_success', data: { postId } })
 }
 
-const deletePost = (req, res) => {
+const deletePost = async (req, res) => {
 	const id = Number(req.params.id)
-	const isSuccess = deletePostModel(id)
+	const isSuccess = await deletePostModel(id)
 	if (!isSuccess) return res.status(500).json({ status: 500, message: 'internal_sever_error', data: null })
 
 	return res.status(200).json({ status: 200, message: 'delete_post_success', data: null })
 }
 
-const checkPostOwner = (req, res) => {
+const checkPostOwner = async (req, res) => {
 	if (!req.session) return res.status(403).json({ status: 403, message: 'unauthorized', data: null })
 
-	const userId = Number(req.session.user.userId)
+	const userId = Number(req.session?.user.userId)
+
+	if (!userId) {
+		return res.status(401).json({ status: 401, message: 'unauthenticated', data: null })
+	}
 
 	const id = Number(req.body.postId)
 
-	const check = checkPostOwnerModel({ userId, postId: id })
+	const check = await checkPostOwnerModel({ userId, postId: id })
 
 	if (!check) return res.status(403).json({ status: 403, message: 'not_allowed', data: null })
 
 	return res.status(200).json({ status: 200, message: 'is_owner', data: null })
 }
 
-const getMyPosts = (req, res) => {
-	const myPosts = getMyPostsModel(Number(req.session.user.userId))
+const getMyPosts = async (req, res) => {
+	const myPosts = await getMyPostsModel(Number(req.session.user.userId))
 	return res.status(200).json({ status: 200, message: '', data: myPosts })
 }
 
-const getOtherPosts = (req, res) => {
-	const otherPosts = getOtherPostsModel()
+const getOtherPosts = async (req, res) => {
+	const otherPosts = await getOtherPostsModel()
 	return res.status(200).json({ status: 200, message: '', data: otherPosts })
 }
 
-const getCodingPosts = (req, res) => {
-	const codingPosts = getCodingPostsModel()
+const getCodingPosts = async (req, res) => {
+	const codingPosts = await getCodingPostsModel()
 	return res.status(200).json({ status: 200, message: '', data: codingPosts })
 }
 

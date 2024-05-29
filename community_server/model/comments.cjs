@@ -1,26 +1,67 @@
 const { comments, posts } = require('./data.cjs')
-const { checkUserModel } = require('./users.cjs')
 const { getLocalDateTime } = require('../tools/dataUtils.cjs')
 
-let commentNum = comments.length
+const db = require('../config/mysql.cjs')
+const conn = db.init()
 
 //댓글 관련 service
-const getCommentModel = data => {
-	const { commentId, postId } = data
+const getCommentModel = commentId => {
+	const sql = `SELECT * 
+    FROM comments 
+    WHERE 
+      commentId = ${commentId} and
+      deleted_at IS NULL 
+  `
 
-	const comment = comments.find(
-		comment => comment.commentId === commentId && comment.postId === postId && comment.deleted_at === null
-	)
-	if (!comment) return null
-	return comment
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				resolve(result)
+			}
+		})
+	})
 }
 
 const getCommentsModel = postId => {
-	return comments.filter(comment => comment.postId === postId && comment.deleted_at === null)
+	const sql = `SELECT 
+    comments.*, 
+    users.nickname, 
+    users.profileImage 
+    FROM 
+      comments 
+    INNER JOIN 
+      users 
+    ON 
+      comments.userId = users.userId 
+    INNER JOIN 
+      posts 
+    ON 
+      comments.postId = posts.postId 
+    WHERE 
+      posts.postId = ${postId} and
+      comments.deleted_at IS NULL 
+    ORDER BY 
+      comments.created_at DESC;
+  `
+
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				resolve(result)
+			}
+		})
+	})
 }
 
-const checkCommentOwnerModel = data => {
-	const comment = comments.find(comment => comment.commentId === data.commentId)
+const checkCommentOwnerModel = async data => {
+	const comment = await getCommentModel(data.commentId)
+	return comment[0].userId !== data.userId ? false : true
 
 	/*
 	 * true: 해당 댓글의 Owner임
@@ -31,28 +72,30 @@ const checkCommentOwnerModel = data => {
 }
 
 const addCommentModel = data => {
-	const user = checkUserModel(data.userId)
-	const commentId = commentNum + 1
 	const date = getLocalDateTime()
 
-	const newComment = {
-		commentId,
-		postId: data.postId,
-		userId: user.userId,
-		nickname: user.nickname,
-		profile_image: user.profile_image,
-		comment: data.comment,
-		created_at: date,
-		updated_at: date,
-		deleted_at: null
-	}
+	const sql = `INSERT INTO comments (
+    comment,
+    postId,
+    userId,
+    created_at
+) VALUES (
+    '${data.comment}',
+    ${data.postId},
+    ${data.userId},
+    '${date}'
+);`
 
-	const postIndex = posts.findIndex(post => post.postId === data.postId)
-	posts[postIndex].comment_count += 1
-
-	commentNum += 1
-	comments.push(newComment)
-	return true
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				resolve(true)
+			}
+		})
+	})
 }
 
 const updateCommentModel = data => {
@@ -60,21 +103,33 @@ const updateCommentModel = data => {
 
 	const { commentId, commentContent } = data
 
-	const commentIndex = comments.findIndex(comment => comment.commentId === commentId && comment.deleted_at === null)
-	comments[commentIndex].comment = commentContent
-	return comments[commentIndex]
+	const sql = `Update comments SET comment = '${commentContent}' WHERE commentId = ${commentId} and deleted_at IS NULL;`
+
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				resolve(true)
+			}
+		})
+	})
 }
 
-const deleteCommentModel = (commentId, postId) => {
-	const commentIndex = comments.findIndex(comment => comment.commentId === commentId && comment.deleted_at === null)
-
-	const postIndex = posts.findIndex(post => post.postId === postId)
-	posts[postIndex].comment_count -= 1
-
-	const date = getLocalDateTime()
-	comments[commentIndex].deleted_at = date
-
-	return true
+const deleteCommentModel = commentId => {
+	const sql = `Delete from comments where commentId = ${commentId}`
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+				return false
+			} else {
+				resolve(true)
+			}
+		})
+	})
 }
 
 module.exports = {

@@ -4,42 +4,142 @@ const fs = require('fs')
 const { getLocalDateTime } = require('../tools/dataUtils.cjs')
 const { posts } = require('./data.cjs')
 
+const db = require('../config/mysql.cjs')
+const conn = db.init()
+
 let postNum = posts.length
 
 //post관련 서비스
 //게시물 상세 조회 로직
-const getPostModel = id => {
-	const postIndex = posts.findIndex(post => post.postId === id && post.deleted_at === null)
-	if (postIndex === -1) return null
-	posts[postIndex].view += 1
-	const post = posts.find(post => post.postId === id && post.deleted_at === null)
+const getPostsModel = () => {
+	const sql = `SELECT 
+      posts.*, 
+      users.nickname, 
+      users.profileImage,
+      (SELECT COUNT(*) FROM comments WHERE comments.postId = posts.postId AND comments.deleted_at IS NULL) AS comment_count
+    FROM 
+      posts 
+    INNER JOIN 
+      users 
+    ON 
+      posts.userId = users.userId 
+    WHERE 
+      posts.deleted_at IS NULL
+    ORDER BY
+      posts.created_at DESC;
+  `
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				resolve(result)
+			}
+		})
+	})
+}
 
-	return post
+const getPostModel = id => {
+	const sql = `SELECT 
+      posts.*, 
+      users.nickname, 
+      users.profileImage,
+      (SELECT COUNT(*) FROM comments WHERE comments.postId = posts.postId AND comments.deleted_at IS NULL) AS comment_count
+    FROM 
+      posts 
+    INNER JOIN 
+      users 
+    ON 
+      posts.userId = users.userId 
+    WHERE 
+      posts.postId = ${id} 
+    AND 
+      posts.deleted_at IS NULL;
+`
+
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				resolve(result)
+			}
+		})
+	})
+}
+
+const updatePostViewModel = id => {
+	const sql = `Update posts SET view = view + 1 WHERE posts.postId = ${id} and posts.deleted_at IS NULL;`
+	new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) console.log('query is not excuted: ' + err)
+		})
+	})
 }
 
 const getMyPostsModel = userId => {
-	return posts.filter(post => post.userId === userId && post.deleted_at === null).reverse()
+	const sql = `SELECT posts.*, users.nickname, users.profileImage 
+    FROM posts INNER JOIN users ON posts.userId = users.userId 
+    WHERE users.userId = ${userId} and posts.deleted_at IS NULL 
+    ORDER BY posts.created_at DESC; `
+
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				resolve(result)
+			}
+		})
+	})
 }
 
 const getOtherPostsModel = () => {
-	return posts.filter(post => post.type === 'other' && post.deleted_at === null).reverse()
+	const sql = `SELECT posts.*, users.nickname, users.profileImage 
+  FROM posts INNER JOIN users ON posts.userId = users.userId 
+  WHERE posts.type = "other" and posts.deleted_at IS NULL 
+  ORDER BY posts.created_at DESC; `
+
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				resolve(result)
+			}
+		})
+	})
 }
 
 const getCodingPostsModel = () => {
-	return posts.filter(post => post.type === 'coding' && post.deleted_at === null).reverse()
+	const sql = `SELECT posts.*, users.nickname, users.profileImage 
+FROM posts INNER JOIN users ON posts.userId = users.userId 
+WHERE posts.type = "coding" and posts.deleted_at IS NULL 
+ORDER BY posts.created_at DESC; `
+
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				resolve(result)
+			}
+		})
+	})
 }
 
-const checkPostOwnerModel = data => {
-	const post = getPostModel(data.postId)
+const checkPostOwnerModel = async data => {
+	const post = await getPostModel(data.postId)
 	/*
 	 * true: 해당 글의 Owner임
 	 * fale: 해당 글의 Owner가 아님
 	 */
-	return post.userId !== data.userId ? false : true
-}
-
-const getPostsModel = () => {
-	return posts.filter(post => post.deleted_at === null)
+	return post[0].userId !== data.userId ? false : true
 }
 
 //게시물 이미지 저장
@@ -61,7 +161,7 @@ const addPostImageModel = image => {
 
 	// 이미지를 서버에 저장
 	const imageName = `post_image_${Date.now()}.png` // 파일명 생성
-	const imagePath = path.join(__dirname, '/images/post', imageName)
+	const imagePath = path.join(__dirname, '../images/post', imageName)
 	fs.writeFile(imagePath, imageBuffer, err => {
 		if (err) {
 			console.error('Error saving image:', err)
@@ -77,88 +177,81 @@ const addPostImageModel = image => {
 
 //게시물 작성 로직
 const addPostModel = data => {
-	const user = checkUserModel(data.userId)
 	const date = getLocalDateTime()
-	const postId = postNum + 1
 
-	const newPost = {
-		postId,
-		userId: data.userId,
-		nickname: user.nickname,
-		title: data.title,
-		type: data.type,
-		content: data.content,
-		postImage: data.postImage,
-		userImage: user.profile_image,
-		created_at: date,
-		updated_at: date,
-		deleted_at: null,
-		view: 0,
-		like: 0,
-		comment_count: 0
-	}
-	postNum += 1
-	posts.push(newPost)
-
-	return postId
+	const sql = `INSERT INTO posts (
+    userId, 
+    postImage, 
+    title, 
+    content, 
+    created_at, 
+    type
+) VALUES (
+    ${data.userId}, 
+    '${data.postImage}', 
+    '${data.title}',
+    '${data.content}',  
+    '${date}',
+    '${data.type}'   
+);
+ `
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				resolve(result.insertId)
+			}
+		})
+	})
 }
 
 //게시물 수정 로직
 const updatePostModel = data => {
 	const { id, title, content, postImage, type } = data
-	const postIndex = posts.findIndex(post => post.postId === id && post.deleted_at === null)
-	if (title) {
-		posts[postIndex].title = title
-	}
+	const sql = `Update posts SET title = "${title}", content = "${content}", postImage = "${postImage}", type="${type}"  WHERE posts.postId = ${id} and posts.deleted_at IS NULL ; `
 
-	if (content) {
-		posts[postIndex].content = content
-	}
-
-	if (postImage) {
-		posts[postIndex].postImage = postImage
-	}
-
-	if (type) {
-		posts[postIndex].type = type
-	}
-
-	return posts[postIndex]
-}
-
-const updatePostUserModel = data => {
-	const { userId, nickname, profile_image } = data
-
-	const updatedPosts = posts.map(post => {
-		if (post.userId === data.userId) {
-			return {
-				...post,
-				userImage: data.profile_image,
-				nickname: data.nickname
+	new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				resolve(result)
 			}
-		}
+		})
 	})
 
-	return
+	return id
 }
 
 //게시물 삭제 로직
-const deletePostModel = id => {
-	const date = getLocalDateTime()
-	posts[id - 1].deleted_at = date
-	return true
+const deletePostModel = async id => {
+	const sql = `Delete from posts where postId = ${id}`
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+				return false
+			} else {
+				resolve(true)
+			}
+		})
+	})
 }
 
 module.exports = {
+	getPostsModel,
 	getPostModel,
 	getMyPostsModel,
 	getOtherPostsModel,
 	getCodingPostsModel,
 	checkPostOwnerModel,
-	getPostsModel,
 	addPostImageModel,
 	addPostModel,
+	updatePostViewModel,
 	updatePostModel,
-	updatePostUserModel,
 	deletePostModel
 }

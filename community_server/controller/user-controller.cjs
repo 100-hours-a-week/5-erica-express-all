@@ -24,12 +24,12 @@ const getUsers = (req, res) => {
 	return res.status(200).json({ status: 200, message: null, data: users })
 }
 
-const getUser = (req, res) => {
+const getUser = async (req, res) => {
 	const userId = req.session.user.userId
 
 	if (!userId) return res.status(400).json({ status: 404, message: 'invalid_user_id', data: null })
 
-	const user = checkUserModel(userId)
+	const user = await checkUserModel(userId)
 	if (!user) return res.status(404).json({ status: 404, message: 'not_fount_user', data: null })
 
 	//TODO: 서버로 띄울 시 활셩화 필요
@@ -41,7 +41,7 @@ const getUser = (req, res) => {
 	return res.status(200).json({ status: 200, message: null, data: user })
 }
 
-const addUser = (req, res) => {
+const addUser = async (req, res) => {
 	const { email, nickname, password, profile_image } = req.body
 
 	let profile_server_url = ''
@@ -54,7 +54,7 @@ const addUser = (req, res) => {
 		profile_server_url = addUserImageModel(profile_image)
 	}
 
-	const newUserId = addUserModel({
+	const newUserId = await addUserModel({
 		email,
 		nickname,
 		password,
@@ -79,13 +79,14 @@ const logInUser = async (req, res) => {
 
 	if (!user) return res.status(404).json({ status: 404, message: 'invalid_email_or_password', data: null })
 
-	req.session.user = user
+	req.session.user = user[0]
 
 	//req.session -> {user: {userId: 1, email: "", }}
-	return res.status(200).json({ status: 200, message: 'login_success', data: user })
+	return res.status(200).json({ status: 200, message: 'login_success', data: user[0] })
 }
 
-const updateUserProfile = (req, res) => {
+//유저 프로필 변경
+const updateUserProfile = async (req, res) => {
 	const userId = Number(req.userId)
 	const { nickname, profile_image } = req.body
 
@@ -105,11 +106,12 @@ const updateUserProfile = (req, res) => {
 		console.log(user_server_url)
 	}
 
-	if (!checkUserIdModel(userId)) return res.status(404).json({ status: 404, message: 'not_found_user', data: null })
+	if (!(await checkUserIdModel(userId)))
+		return res.status(404).json({ status: 404, message: 'not_found_user', data: null })
 
 	if (!profile_image) return res.status(500).json({ status: 500, message: 'internal_server_error', data: null })
 
-	const success = updateUserProfileModel({
+	const success = await updateUserProfileModel({
 		userId,
 		nickname,
 		profile_image: user_server_url
@@ -117,10 +119,11 @@ const updateUserProfile = (req, res) => {
 
 	if (!success) return res.status(500).json({ status: 500, message: 'internal_server_error', data: null })
 
-	return res.status(201).json({ status: 201, message: 'update_user_data_success', data: success })
+	return res.status(201).json({ status: 201, message: 'update_user_data_success', data: null })
 }
 
-const updateUserpassword = (req, res) => {
+//비밀번호 변경
+const updateUserpassword = async (req, res) => {
 	const userId = Number(req.userId)
 	const password = req.body.password
 
@@ -128,10 +131,12 @@ const updateUserpassword = (req, res) => {
 
 	if (!password) return res.status(400).json({ status: 400, message: 'invalid_password', data: null })
 
-	if (!checkUserIdModel(userId)) return res.status(404).json({ status: 404, message: 'not_found_user', data: null })
+	if (!(await checkUserIdModel(userId)))
+		return res.status(404).json({ status: 404, message: 'not_found_user', data: null })
 
-	if (!updateUserPasswordModel({ userId, password }))
-		return res.status(500).json({ status: 500, message: 'internal_server_error', data: null })
+	const success = await updateUserPasswordModel({ userId, password })
+
+	if (!success) return res.status(500).json({ status: 500, message: 'internal_server_error', data: null })
 
 	req.session.destroy()
 
@@ -142,43 +147,50 @@ const updateUserpassword = (req, res) => {
 	})
 }
 
-const deleteUser = (req, res) => {
+//회원탈퇴
+const deleteUser = async (req, res) => {
 	const userId = Number(req.session.user.userId)
 
 	if (!userId) return res.status(400).json({ status: 400, message: 'invalid_user_id', data: null })
 
-	if (!checkUserIdModel(userId)) return res.status(404).json({ status: 404, message: 'not_found_user', data: null })
+	const isUser = await checkUserModel(userId)
 
-	if (deleteUserModel(userId))
-		return res.status(200).json({ status: 200, message: 'delete_user-data_success', data: null })
+	if (!isUser) {
+		return res.status(404).json({ status: 404, message: 'not_found_user', data: null })
+	}
+
+	if (await deleteUserModel(userId)) {
+		req.session.destroy()
+		return res.status(200).json({ status: 200, message: 'delete_user_data_success', data: null })
+	}
 }
 
-const duplicateEmail = (req, res) => {
-	if (checkUserEmailModel(req.params.email))
+const duplicateEmail = async (req, res) => {
+	if (await checkUserEmailModel(req.params.email))
 		return res.status(400).json({ status: 400, message: 'already_exist_email', data: null })
 
 	return res.status(200).json({ status: 200, message: 'available_email', data: null })
 }
 
-const duplicateNickname = (req, res) => {
+const duplicateNickname = async (req, res) => {
 	const nickname = req.params.nickname
 	const userId = Number(req.session.user.userId) ?? null
 
 	if (!userId) return res.status(404).json({ status: 404, message: 'invalid_user', data: null })
 
 	if (userId) {
-		const user = checkUserModel(userId)
+		const user = await checkUserModel(userId)
 		if (user.nickname === nickname) return res.status(200).json({ status: 200, message: 'same_nickname', data: null })
 	}
 
-	if (checkUserNicknameModel(nickname))
+	if (await checkUserNicknameModel(nickname))
 		return res.status(400).json({ status: 400, message: 'already_exist_nickname', data: null })
 
 	return res.status(200).json({ status: 200, message: 'available_nickname', data: null })
 }
 
-const duplicateSignUpNickname = (req, res) => {
-	if (checkUserNicknameModel(req.params.nickname))
+const duplicateSignUpNickname = async (req, res) => {
+	if (await checkUserNicknameModel(req.params.nickname))
 		return res.status(400).json({ status: 400, message: 'already_exist_nickname', data: null })
 
 	return res.status(200).json({ status: 200, message: 'available_nickname', data: null })
@@ -195,8 +207,8 @@ const checkLogIn = (req, res) => {
 	return res.status(401).json({ status: 401, message: 'unauthenticated', data: '' })
 }
 
-const getMyCount = (req, res) => {
-	const data = getUserWriteCount(req.session.user.userId)
+const getMyCount = async (req, res) => {
+	const data = await getUserWriteCount(req.session.user.userId)
 	return res.status(200).json({ status: 200, message: '', data })
 }
 

@@ -4,79 +4,148 @@ const path = require('path')
 const { getLocalDateTime } = require('../tools/dataUtils.cjs')
 const bcrypt = require('bcryptjs')
 
-//유저 관련 서비스
-let userNum = users.length
+const db = require('../config/mysql.cjs')
+const conn = db.init()
 
 //userId 유효성 조회 로직
 const checkUserIdModel = userId => {
-	const user = users.find(user => user.userId === userId && user.deleted_at === null)
-
 	/*
 	 * true: 해당 id를 가진 user 존재
 	 * fale: 해당 id를가진 user 존재 X
 	 */
 
-	return !user ? false : true
+	const sql = `Select * from users where userId = ${userId} and deleted_at is NULL`
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				if (result.length != 0) {
+					resolve(true)
+				} else resolve(false)
+			}
+		})
+	})
 }
 
 const checkUserModel = userId => {
-	const user = users.find(user => user.userId === userId && user.deleted_at === null)
-	return user
+	const sql = `Select * from users where userId = ${userId} and deleted_at is NULL`
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				if (result.length != 0) {
+					resolve(result[0])
+				}
+			}
+		})
+	})
 }
 
 const checkUserNicknameModel = nickname => {
-	const user = users.find(user => user.nickname === nickname && user.deleted_at === null)
-
 	/*
 	 * true: 해당 nickname을 가진 user 존재
 	 * false: 해당 nickname을 가진 user 존재 X
 	 */
 
-	return user ? true : false
+	const sql = `Select * from users where nickname = '${nickname}' and deleted_at is NULL`
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				if (result.length != 0) {
+					resolve(true)
+				}
+				resolve(false)
+			}
+		})
+	})
 }
 
 const checkUserEmailModel = email => {
-	const user = users.find(user => user.email === email && user.deleted_at === null)
+	const sql = `Select * from users where email = '${email}'`
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				if (result.length != 0) {
+					resolve(true)
+				}
+				resolve(false)
+			}
+		})
+	})
 
 	/*
 	 * true: 해당 email을 가진 user 존재
 	 * false: 해당 email을 가진 user 존재 X
 	 */
-	return user ? true : false
 }
 
 //유저 등록 로직
 const addUserModel = data => {
-	//data 형식: { email, nickname, password, profile_image }
-	const userId = userNum + 1
 	const date = getLocalDateTime()
 
 	const salt = bcrypt.genSaltSync(10)
 	const hash = bcrypt.hashSync(data.password, salt)
 
-	const newUser = {
-		userId,
-		email: data.email,
-		nickname: data.nickname,
-		password: hash,
-		profile_image: data.profile_image,
-		created_at: date,
-		updated_at: date,
-		deleted_at: null
-	}
+	const sql = `INSERT INTO users (
+    email,
+    nickname,
+    password,
+    profileImage,
+    created_at
+  ) VALUES (
+    '${data.email}',
+    '${data.nickname}',
+    '${hash}',
+    '${data.profile_image}',
+    '${date}'
+  );`
 
-	users.push(newUser)
-	userNum += 1
-	return userId
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				resolve(result.insertId)
+			}
+		})
+	})
+}
+
+const checkLogInModel = email => {
+	const sql = `Select * from users where email = '${email}'`
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+				return false
+			} else {
+				resolve(result)
+			}
+		})
+	})
 }
 
 //유저 로그인 로직 -> 유저 아이디 반환
 const logInUserModel = async (email, password) => {
-	const user = users.find(user => user.email === email && user.deleted_at === null)
+	const user = await checkLogInModel(email)
+	if (!user) {
+		return false
+	}
+	const passwordCorrect = await bcrypt.compare(password, user[0].password)
 
-	const passwordCorrect = await bcrypt.compare(password, user.password)
-
-	if (!user || !passwordCorrect) return null
+	if (!passwordCorrect) return false
 
 	return user
 }
@@ -86,66 +155,71 @@ const updateUserProfileModel = data => {
 	const { userId, nickname, profile_image } = data
 	if (!nickname && !profile_image) return null
 
-	const userIndex = users.findIndex(user => user.userId === userId && user.deleted_at === null)
-
-	users[userIndex].nickname = nickname
-	users[userIndex].profile_image = profile_image
-
-	//유저가 작성한 글 유저이미지, 닉네임 수정
-	const userPostsIndex = []
-
-	posts.forEach((post, index) => {
-		if (post.userId === userId) {
-			userPostsIndex.push(index)
-		}
+	const sql = `
+    UPDATE users
+    SET 
+      nickname = '${nickname}',
+      profileImage = '${profile_image}'
+    WHERE 
+      userId = ${userId} and deleted_at is NULL;
+  `
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				resolve(true)
+			}
+		})
 	})
-
-	userPostsIndex.forEach(index => {
-		posts[index].nickname = nickname
-		posts[index].userImage = profile_image
-	})
-
-	//유저가 작성한 댓글 유저이미지, 닉네임 수정
-	const userCommentsIndex = []
-	comments.forEach((comment, index) => {
-		if (comment.userId === userId) {
-			userCommentsIndex.push(index)
-		}
-	})
-
-	userCommentsIndex.forEach(index => {
-		comments[index].nickname = nickname
-		comments[index].profile_image = profile_image
-	})
-
-	return users[userIndex]
 }
 
 //유저 비밀번호 수정 로직
 const updateUserPasswordModel = data => {
 	const { userId, password } = data
 	if (!userId || !password) return false
-
-	const userIndex = users.findIndex(user => user.userId === userId && user.deleted_at === null)
-
 	const salt = bcrypt.genSaltSync(10)
 	const hash = bcrypt.hashSync(password, salt)
 
-	users[userIndex].password = hash
-
-	return users[userIndex]
+	const sql = `
+    UPDATE users
+    SET 
+      password = '${hash}'
+    WHERE 
+      userId = ${userId} and deleted_at is NULL;
+  `
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				resolve(true)
+			}
+		})
+	})
 }
 
 //유저 회원탈퇴 로직
-const deleteUserModel = id => {
+const deleteUserModel = async id => {
 	if (!id) return false
 
-	const user = checkUserIdModel(id)
+	const user = await checkUserIdModel(id)
 	if (!user) return false
 
-	const date = getLocalDateTime()
-	users[id - 1].deleted_at = date
-	return true
+	const sql = `Delete from users where userId = ${id}`
+	return new Promise((resolve, reject) => {
+		conn.query(sql, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+				return false
+			} else {
+				resolve(true)
+			}
+		})
+	})
 }
 
 //이미지 저장
@@ -158,7 +232,7 @@ const addUserImageModel = image => {
 
 	// 이미지를 서버에 저장
 	const imageName = `profile_image_${Date.now()}.png` // 파일명 생성
-	const imagePath = path.join(__dirname, '/images/profile', imageName)
+	const imagePath = path.join(__dirname, '../images/profile', imageName)
 	fs.writeFile(imagePath, imageBuffer, err => {
 		if (err) {
 			console.error('Error saving image:', err)
@@ -172,14 +246,33 @@ const addUserImageModel = image => {
 }
 
 //게시글 수, 댓글 수 가져오기
-const getUserWriteCount = userId => {
-	const postCount = posts.filter(post => {
-		return post.userId === userId && post.deleted_at === null
-	}).length
+const getUserWriteCount = async userId => {
+	const sql1 = `Select count(*) As count from posts where userId = ${userId}`
+	const postCount = await new Promise((resolve, reject) => {
+		conn.query(sql1, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				const count = result[0].count
+				resolve(count)
+			}
+		})
+	})
 
-	const commentCount = comments.filter(comment => {
-		return comment.userId === userId && comment.deleted_at === null
-	}).length
+	const sql2 = `Select count(*) As count from comments where userId = ${userId}`
+
+	const commentCount = await new Promise((resolve, reject) => {
+		conn.query(sql2, function (err, result) {
+			if (err) {
+				console.log('query is not executed: ' + err)
+				reject(err)
+			} else {
+				const count = result[0].count
+				resolve(count)
+			}
+		})
+	})
 
 	return { postCount, commentCount }
 }

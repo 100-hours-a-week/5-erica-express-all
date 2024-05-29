@@ -40,7 +40,7 @@ router.patch('/user/profile', modifyAuthUser, updateUserProfile)
 //비밀번호 변경
 router.patch('/user/password', modifyAuthUser, updateUserpassword)
 
-//유저
+//유저 삭제
 router.delete('/user', getAuthUser, deleteUser)
 
 //이메일 중복 체크
