@@ -6,80 +6,34 @@ const {
 	deleteCommentQuery
 } = require('../queries/comments.cjs')
 
-const mysql = require('mysql2')
+const queryPromise = require('../tools/queryUtils.cjs')
 
-const { db_info } = require('../config/mysql.cjs')
-const conn = mysql.createConnection(db_info)
-
-const getCommentModel = commentId => {
-	return new Promise((resolve, reject) => {
-		conn.query(getCommentQuery(commentId), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				resolve(result)
-			}
-		})
-	})
+const getCommentModel = async commentId => {
+	return await queryPromise(getCommentQuery(commentId))
 }
 
-const getCommentsModel = postId => {
-	return new Promise((resolve, reject) => {
-		conn.query(getCommentsQuery(postId), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				resolve(result)
-			}
-		})
-	})
+const getCommentsModel = async postId => {
+	return await queryPromise(getCommentsQuery(postId))
 }
 
 const checkCommentOwnerModel = async data => {
 	const comment = await getCommentModel(data.commentId)
-	return comment[0].userId !== data.userId ? false : true
+	return comment[0].userId === data.userId
 }
 
-const addCommentModel = data => {
-	return new Promise((resolve, reject) => {
-		conn.query(addCommentQuery(data), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				resolve(true)
-			}
-		})
-	})
+const addCommentModel = async data => {
+	await queryPromise(addCommentQuery(data))
+	return true
 }
 
-const updateCommentModel = data => {
-	return new Promise((resolve, reject) => {
-		conn.query(updateCommentQuery(data), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				resolve(true)
-			}
-		})
-	})
+const updateCommentModel = async data => {
+	await queryPromise(updateCommentQuery(data))
+	return true
 }
 
-const deleteCommentModel = commentId => {
-	return new Promise((resolve, reject) => {
-		conn.query(deleteCommentQuery(commentId), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-				return false
-			} else {
-				resolve(true)
-			}
-		})
-	})
+const deleteCommentModel = async commentId => {
+	await queryPromise(deleteCommentQuery(commentId))
+	return true
 }
 
 module.exports = {

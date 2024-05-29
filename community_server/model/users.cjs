@@ -2,8 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const bcrypt = require('bcryptjs')
 
-const { db_info } = require('../config/mysql.cjs')
-const conn = mysql.createConnection(db_info)
+const queryPromise = require('../tools/queryUtils.cjs')
 
 const {
 	getUserQuery,
@@ -18,169 +17,89 @@ const {
 } = require('../queries/users.cjs')
 
 //userId 유효성 조회 로직
-const checkUserIdModel = userId => {
-	return new Promise((resolve, reject) => {
-		conn.query(getUserQuery(userId), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				if (result.length != 0) {
-					resolve(true)
-				} else resolve(false)
-			}
-		})
-	})
+const checkUserIdModel = async userId => {
+	const result = await queryPromise(getUserQuery(userId))
+	return result.length !== 0
 }
 
-const checkUserModel = userId => {
-	return new Promise((resolve, reject) => {
-		conn.query(getUserQuery(userId), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				if (result.length != 0) {
-					resolve(result[0])
-				}
-			}
-		})
-	})
+const checkUserModel = async userId => {
+	const result = await queryPromise(getUserQuery(userId))
+	return result.length !== 0 ? result[0] : null
 }
 
-const checkUserNicknameModel = nickname => {
-	return new Promise((resolve, reject) => {
-		conn.query(nicknameQuery(nickname), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				if (result.length != 0) {
-					resolve(true)
-				}
-				resolve(false)
-			}
-		})
-	})
+const checkUserNicknameModel = async nickname => {
+	const result = await queryPromise(nicknameQuery(nickname))
+	return result.length !== 0
 }
 
-const checkUserEmailModel = email => {
-	return new Promise((resolve, reject) => {
-		conn.query(emailQuery(email), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				if (result.length != 0) {
-					resolve(true)
-				}
-				resolve(false)
-			}
-		})
-	})
+const checkUserEmailModel = async email => {
+	const result = await queryPromise(emailQuery(email))
+	return result.length !== 0
 }
 
 //유저 등록 로직
-const addUserModel = data => {
+const addUserModel = async data => {
 	const salt = bcrypt.genSaltSync(10)
 	const hash = bcrypt.hashSync(data.password, salt)
-
 	const addData = { email: data.email, nickname: data.nickname, password: hash, profileImage: data.profile_image }
-
-	return new Promise((resolve, reject) => {
-		conn.query(addUserQuery(addData), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				resolve(result.insertId)
-			}
-		})
-	})
+	const result = await queryPromise(addUserQuery(addData))
+	return result.insertId
 }
 
-const checkLogInModel = email => {
-	return new Promise((resolve, reject) => {
-		conn.query(emailQuery(email), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-				return false
-			} else {
-				resolve(result[0])
-			}
-		})
-	})
+const checkLogInModel = async email => {
+	const result = await queryPromise(emailQuery(email))
+	return result.length !== 0 ? result[0] : null
 }
 
 //유저 로그인 로직 -> 유저 아이디 반환
 const logInUserModel = async (email, password) => {
 	const user = await checkLogInModel(email)
-	if (!user) {
-		return false
-	}
+	if (!user) return false
+
 	const passwordCorrect = await bcrypt.compare(password, user.password)
-
-	if (!passwordCorrect) return false
-
-	return user
+	return passwordCorrect ? user : false
 }
 
 //유저 정보 수정 로직
-const updateUserProfileModel = data => {
+const updateUserProfileModel = async data => {
 	if (!data.nickname && !data.profile_image) return null
-
-	return new Promise((resolve, reject) => {
-		conn.query(updateUserProfileQuery(data), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				resolve(true)
-			}
-		})
-	})
+	await queryPromise(updateUserProfileQuery(data))
+	return true
 }
 
 //유저 비밀번호 수정 로직
-const updateUserPasswordModel = data => {
+const updateUserPasswordModel = async data => {
 	const { userId, password } = data
 	if (!userId || !password) return false
+
 	const salt = bcrypt.genSaltSync(10)
 	const hash = bcrypt.hashSync(password, salt)
+	const updateData = { password: hash, userId }
 
-	const updateData = { password: hash, userId: data.userId }
-
-	return new Promise((resolve, reject) => {
-		conn.query(updateUserPasswordQuery(updateData), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				resolve(true)
-			}
-		})
-	})
+	await queryPromise(updateUserPasswordQuery(updateData))
+	return true
 }
 
 //유저 회원탈퇴 로직
 const deleteUserModel = async id => {
 	if (!id) return false
 
-	const user = await checkUserIdModel(id)
-	if (!user) return false
+	const userExists = await checkUserIdModel(id)
+	if (!userExists) return false
 
-	return new Promise((resolve, reject) => {
-		conn.query(deleteUserQuery(id), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-				return false
-			} else {
-				resolve(true)
-			}
-		})
-	})
+	await queryPromise(deleteUserQuery(id))
+	return true
+}
+
+//게시글 수, 댓글 수 가져오기
+const getUserWriteCount = async userId => {
+	const postCountResult = await queryPromise(getPostCountQuery(userId))
+	const commentCountResult = await queryPromise(getCommentCountQuery(userId))
+
+	return {
+		postCount: postCountResult[0]?.count || 0,
+		commentCount: commentCountResult[0]?.count || 0
+	}
 }
 
 //이미지 저장
@@ -204,35 +123,6 @@ const addUserImageModel = image => {
 
 	const imageUrl = `http://localhost:8000/images/profile/${imageName}`
 	return imageUrl
-}
-
-//게시글 수, 댓글 수 가져오기
-const getUserWriteCount = async userId => {
-	const postCount = await new Promise((resolve, reject) => {
-		conn.query(getPostCountQuery(userId), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				const count = result[0].count
-				resolve(count)
-			}
-		})
-	})
-
-	const commentCount = await new Promise((resolve, reject) => {
-		conn.query(getCommentCountQuery(userId), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				const count = result[0].count
-				resolve(count)
-			}
-		})
-	})
-
-	return { postCount, commentCount }
 }
 
 module.exports = {

@@ -12,100 +12,55 @@ const {
 	deletePostQuery
 } = require('../queries/posts.cjs')
 
-const { db_info } = require('../config/mysql.cjs')
-const conn = mysql.createConnection(db_info)
+const queryPromise = require('../tools/queryUtils.cjs')
 
 //post관련 서비스
 //게시물 상세 조회 로직
-const getPostsModel = () => {
-	return new Promise((resolve, reject) => {
-		conn.query(postsQuery(), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				resolve(result)
-			}
-		})
-	})
+const getPostsModel = async () => {
+	return await queryPromise(postsQuery())
 }
 
-const getPostModel = id => {
-	return new Promise((resolve, reject) => {
-		conn.query(postQuery(id), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				resolve(result)
-			}
-		})
-	})
+const getPostModel = async id => {
+	return await queryPromise(postQuery(id))
 }
 
-const updatePostViewModel = id => {
-	new Promise((resolve, reject) => {
-		conn.query(updatePostViewQuery(id), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				resolve(true)
-			}
-		})
-	})
+const updatePostViewModel = async id => {
+	await queryPromise(updatePostViewQuery(id))
+	return true
 }
 
-const getMyPostsModel = userId => {
-	return new Promise((resolve, reject) => {
-		conn.query(myPostsQuery(userId), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				resolve(result)
-			}
-		})
-	})
+const getMyPostsModel = async userId => {
+	return await queryPromise(myPostsQuery(userId))
 }
 
-const getOtherPostsModel = () => {
-	return new Promise((resolve, reject) => {
-		conn.query(otherPostsQuery(), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				resolve(result)
-			}
-		})
-	})
+const getOtherPostsModel = async () => {
+	return await queryPromise(otherPostsQuery())
 }
 
-const getCodingPostsModel = () => {
-	return new Promise((resolve, reject) => {
-		conn.query(codingPostsQuery(), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				resolve(result)
-			}
-		})
-	})
+const getCodingPostsModel = async () => {
+	return await queryPromise(codingPostsQuery())
 }
 
 const checkPostOwnerModel = async data => {
 	const post = await getPostModel(data.postId)
-	/*
-	 * true: 해당 글의 Owner임
-	 * fale: 해당 글의 Owner가 아님
-	 */
-	return post[0].userId !== data.userId ? false : true
+	return post[0].userId === data.userId
 }
 
-//게시물 이미지 저장
-//이미지 저장
+const addPostModel = async data => {
+	const result = await queryPromise(addPostQuery(data))
+	return result.insertId
+}
+
+const updatePostModel = async data => {
+	await queryPromise(updatePostQuery(data))
+	return data.id
+}
+
+const deletePostModel = async id => {
+	await queryPromise(deletePostQuery(id))
+	return true
+}
+
 const addPostImageModel = image => {
 	const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)
 
@@ -135,51 +90,6 @@ const addPostImageModel = image => {
 
 	const imageUrl = `http://localhost:8000/images/post/${imageName}`
 	return imageUrl
-}
-
-//게시물 작성 로직
-const addPostModel = data => {
-	return new Promise((resolve, reject) => {
-		conn.query(addPostQuery(data), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				resolve(result.insertId)
-			}
-		})
-	})
-}
-
-//게시물 수정 로직
-const updatePostModel = data => {
-	new Promise((resolve, reject) => {
-		conn.query(updatePostQuery(data), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-			} else {
-				resolve(result)
-			}
-		})
-	})
-
-	return data.id
-}
-
-//게시물 삭제 로직
-const deletePostModel = async id => {
-	return new Promise((resolve, reject) => {
-		conn.query(deletePostQuery(id), function (err, result) {
-			if (err) {
-				console.log(err)
-				reject(err)
-				return false
-			} else {
-				resolve(true)
-			}
-		})
-	})
 }
 
 module.exports = {
