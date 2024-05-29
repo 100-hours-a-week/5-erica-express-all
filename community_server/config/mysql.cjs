@@ -1,21 +1,11 @@
 const mysql = require('mysql2')
 
 const db_info = {
-	host: 'localhost', // 데이터베이스 주소
-	port: '3306', // 데이터베이스 포트
-	user: 'community', // 로그인 계정
-	password: 'community', // 비밀번호
-	database: 'community' // 엑세스할 데이터베이스
+	host: 'localhost',
+	port: '3306',
+	user: 'community',
+	password: 'community',
+	database: 'community'
 }
 
-module.exports = {
-	init: function () {
-		return mysql.createConnection(db_info)
-	},
-	connect: function (conn) {
-		conn.connect(function (err) {
-			if (err) console.error('mysql connection error : ' + err)
-			else console.log('mysql is connected successfully!')
-		})
-	}
-}
+module.exports = { db_info }

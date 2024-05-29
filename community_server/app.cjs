@@ -16,6 +16,11 @@ const corsOptions = {
 	methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE']
 }
 
+const { db_info } = require('./config/mysql.cjs')
+
+const MySQLStore = require('express-mysql-session')(session)
+const sessionStore = new MySQLStore(db_info)
+app.use(express.json())
 app.use(cors(corsOptions))
 app.use(cookieParser())
 app.use(
@@ -24,8 +29,10 @@ app.use(
 		saveUninitialized: true,
 		resave: false,
 		cookie: {
-			secure: false
-		}
+			secure: false,
+			maxAge: 1000 * 60 * 60 * 24
+		},
+		store: sessionStore
 	})
 )
 
