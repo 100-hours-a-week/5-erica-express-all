@@ -1,14 +1,13 @@
-import { getPostModel } from '../model/posts.js'
-import {
-	getCommentModel,
+const { getPostModel } = require('../model/posts.cjs')
+const {
 	getCommentsModel,
 	checkCommentOwnerModel,
 	addCommentModel,
 	updateCommentModel,
 	deleteCommentModel
-} from '../model/comments.js'
+} = require('../model/comments.cjs')
 
-//실제 controller 역할
+// 실제 controller 역할
 const getComments = (req, res) => {
 	const postId = Number(req.params.postId)
 	if (!postId) {
@@ -17,7 +16,7 @@ const getComments = (req, res) => {
 
 	const comments = getCommentsModel(postId)
 
-	//TODO: 서버로 띄울 시 활셩화 필요
+	// TODO: 서버로 띄울 시 활성화 필요
 	// comments.forEach((comment) => {
 	//   comment.profile_image = comment.profile_image.replace(
 	//     "http://localhost:8000",
@@ -76,7 +75,7 @@ const checkCommentOwner = (req, res) => {
 	return res.status(200).json({ status: 200, message: 'is_owner', data: null })
 }
 
-export const commentController = {
+module.exports = {
 	getComments,
 	addComment,
 	updateComment,

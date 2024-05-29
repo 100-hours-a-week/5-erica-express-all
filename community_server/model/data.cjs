@@ -1,4 +1,4 @@
-export const comments = [
+const comments = [
 	{
 		commentId: 1,
 		postId: 1,
@@ -111,7 +111,7 @@ export const comments = [
 	}
 ]
 
-export const posts = [
+const posts = [
 	{
 		postId: 1,
 		userId: 1,
@@ -434,7 +434,7 @@ export const posts = [
 	}
 ]
 
-export const users = [
+const users = [
 	{
 		userId: 1,
 		nickname: 'user1',
@@ -486,3 +486,5 @@ export const users = [
 		deleted_at: null
 	}
 ]
+
+module.exports = { comments, posts, users }

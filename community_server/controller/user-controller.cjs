@@ -1,5 +1,5 @@
-import { users } from '../model/data.js'
-import {
+const { users } = require('../model/data.cjs')
+const {
 	checkUserModel,
 	checkUserIdModel,
 	checkUserEmailModel,
@@ -11,7 +11,7 @@ import {
 	deleteUserModel,
 	addUserImageModel,
 	getUserWriteCount
-} from '../model/users.js'
+} = require('../model/users.cjs')
 
 const getUsers = (req, res) => {
 	//TODO: 서버로 띄울 시 활셩화 필요
@@ -200,7 +200,7 @@ const getMyCount = (req, res) => {
 	return res.status(200).json({ status: 200, message: '', data })
 }
 
-export const userController = {
+const userController = {
 	getUsers,
 	getUser,
 	addUser,
@@ -215,3 +215,5 @@ export const userController = {
 	checkLogIn,
 	getMyCount
 }
+
+module.exports = userController

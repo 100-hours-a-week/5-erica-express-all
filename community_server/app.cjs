@@ -1,22 +1,24 @@
-import express from 'express'
-import userRouter from './routes/user.js'
-import postRouter from './routes/post.js'
-import commentRouter from './routes/comment.js'
-import profileImageRouter from './routes/profileImage.js'
-import postImageRouter from './routes/postImage.js'
-import * as Sentry from '@sentry/node'
-import { nodeProfilingIntegration } from '@sentry/profiling-node'
-import cors from 'cors'
-import cookieParser from 'cookie-parser'
-import session from 'express-session'
+const express = require('express')
+const path = require('path')
+const userRouter = require('./routes/user.cjs')
+const postRouter = require('./routes/post.cjs')
+const commentRouter = require('./routes/comment.cjs')
+const profileImageRouter = require('./routes/profileImage.cjs')
+const postImageRouter = require('./routes/postImage.cjs')
+const Sentry = require('@sentry/node')
+const { nodeProfilingIntegration } = require('@sentry/profiling-node')
+const cors = require('cors')
+const cookieParser = require('cookie-parser')
+const session = require('express-session')
 
 const app = express()
 const port = 8000
 const corsOptions = {
 	origin: 'http://localhost:3000',
 	credentials: true,
-	method: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE']
+	methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE']
 }
+
 app.use(cors(corsOptions))
 app.use(cookieParser())
 app.use(
@@ -55,6 +57,9 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.json({ limit: '50mb' }))
 app.use(express.text())
 
+// 정적 파일 제공 설정
+app.use('/images', express.static(path.join(__dirname, 'images')))
+
 // All your controllers should live here
 app.get('/', function rootHandler(req, res) {
 	res.end('Hello world!')
@@ -74,14 +79,8 @@ apiRouter.use('/users', userRouter)
 apiRouter.use('/posts', postRouter)
 apiRouter.use('/posts', commentRouter)
 
-// /imgaes 경로용 라우터
-const imagesRouter = express.Router()
-imagesRouter.use('/profile', profileImageRouter)
-imagesRouter.use('/post', postImageRouter)
-
 // 공통 라우터
 app.use('/api', apiRouter)
-app.use('/images', imagesRouter)
 
 app.use('/api/test', (req, res) => {
 	throw new Error('에러 테스트')

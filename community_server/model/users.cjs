@@ -1,16 +1,14 @@
-import { comments, posts, users } from '../model/data.js'
-import fs from 'fs'
-import path from 'path'
-import { getLocalDateTime } from '../tools/dataUtils.js'
-import bcrypt from 'bcryptjs'
-
-const __dirname = path.resolve()
+const { comments, posts, users } = require('./data.cjs')
+const fs = require('fs')
+const path = require('path')
+const { getLocalDateTime } = require('../tools/dataUtils.cjs')
+const bcrypt = require('bcryptjs')
 
 //유저 관련 서비스
 let userNum = users.length
 
 //userId 유효성 조회 로직
-export const checkUserIdModel = userId => {
+const checkUserIdModel = userId => {
 	const user = users.find(user => user.userId === userId && user.deleted_at === null)
 
 	/*
@@ -21,12 +19,12 @@ export const checkUserIdModel = userId => {
 	return !user ? false : true
 }
 
-export const checkUserModel = userId => {
+const checkUserModel = userId => {
 	const user = users.find(user => user.userId === userId && user.deleted_at === null)
 	return user
 }
 
-export const checkUserNicknameModel = nickname => {
+const checkUserNicknameModel = nickname => {
 	const user = users.find(user => user.nickname === nickname && user.deleted_at === null)
 
 	/*
@@ -37,7 +35,7 @@ export const checkUserNicknameModel = nickname => {
 	return user ? true : false
 }
 
-export const checkUserEmailModel = email => {
+const checkUserEmailModel = email => {
 	const user = users.find(user => user.email === email && user.deleted_at === null)
 
 	/*
@@ -48,7 +46,7 @@ export const checkUserEmailModel = email => {
 }
 
 //유저 등록 로직
-export const addUserModel = data => {
+const addUserModel = data => {
 	//data 형식: { email, nickname, password, profile_image }
 	const userId = userNum + 1
 	const date = getLocalDateTime()
@@ -73,7 +71,7 @@ export const addUserModel = data => {
 }
 
 //유저 로그인 로직 -> 유저 아이디 반환
-export const logInUserModel = async (email, password) => {
+const logInUserModel = async (email, password) => {
 	const user = users.find(user => user.email === email && user.deleted_at === null)
 
 	const passwordCorrect = await bcrypt.compare(password, user.password)
@@ -84,7 +82,7 @@ export const logInUserModel = async (email, password) => {
 }
 
 //유저 정보 수정 로직
-export const updateUserProfileModel = data => {
+const updateUserProfileModel = data => {
 	const { userId, nickname, profile_image } = data
 	if (!nickname && !profile_image) return null
 
@@ -124,7 +122,7 @@ export const updateUserProfileModel = data => {
 }
 
 //유저 비밀번호 수정 로직
-export const updateUserPasswordModel = data => {
+const updateUserPasswordModel = data => {
 	const { userId, password } = data
 	if (!userId || !password) return false
 
@@ -139,7 +137,7 @@ export const updateUserPasswordModel = data => {
 }
 
 //유저 회원탈퇴 로직
-export const deleteUserModel = id => {
+const deleteUserModel = id => {
 	if (!id) return false
 
 	const user = checkUserIdModel(id)
@@ -151,7 +149,7 @@ export const deleteUserModel = id => {
 }
 
 //이미지 저장
-export const addUserImageModel = image => {
+const addUserImageModel = image => {
 	const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)
 	if (!matches || matches.length !== 3) return null
 
@@ -174,7 +172,7 @@ export const addUserImageModel = image => {
 }
 
 //게시글 수, 댓글 수 가져오기
-export const getUserWriteCount = userId => {
+const getUserWriteCount = userId => {
 	const postCount = posts.filter(post => {
 		return post.userId === userId && post.deleted_at === null
 	}).length
@@ -184,4 +182,18 @@ export const getUserWriteCount = userId => {
 	}).length
 
 	return { postCount, commentCount }
+}
+
+module.exports = {
+	checkUserIdModel,
+	checkUserModel,
+	checkUserNicknameModel,
+	checkUserEmailModel,
+	addUserModel,
+	logInUserModel,
+	updateUserProfileModel,
+	updateUserPasswordModel,
+	deleteUserModel,
+	addUserImageModel,
+	getUserWriteCount
 }

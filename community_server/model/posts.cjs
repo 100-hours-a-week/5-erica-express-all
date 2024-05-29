@@ -1,16 +1,14 @@
-import { checkUserModel } from './users.js'
-import path from 'path'
-import fs from 'fs'
-import { getLocalDateTime } from '../tools/dataUtils.js'
-import { posts } from './data.js'
-
-const __dirname = path.resolve()
+const { checkUserModel } = require('./users.cjs')
+const path = require('path')
+const fs = require('fs')
+const { getLocalDateTime } = require('../tools/dataUtils.cjs')
+const { posts } = require('./data.cjs')
 
 let postNum = posts.length
 
 //post관련 서비스
 //게시물 상세 조회 로직
-export const getPostModel = id => {
+const getPostModel = id => {
 	const postIndex = posts.findIndex(post => post.postId === id && post.deleted_at === null)
 	if (postIndex === -1) return null
 	posts[postIndex].view += 1
@@ -19,19 +17,19 @@ export const getPostModel = id => {
 	return post
 }
 
-export const getMyPostsModel = userId => {
+const getMyPostsModel = userId => {
 	return posts.filter(post => post.userId === userId && post.deleted_at === null).reverse()
 }
 
-export const getOtherPostsModel = () => {
+const getOtherPostsModel = () => {
 	return posts.filter(post => post.type === 'other' && post.deleted_at === null).reverse()
 }
 
-export const getCodingPostsModel = () => {
+const getCodingPostsModel = () => {
 	return posts.filter(post => post.type === 'coding' && post.deleted_at === null).reverse()
 }
 
-export const checkPostOwnerModel = data => {
+const checkPostOwnerModel = data => {
 	const post = getPostModel(data.postId)
 	/*
 	 * true: 해당 글의 Owner임
@@ -40,13 +38,13 @@ export const checkPostOwnerModel = data => {
 	return post.userId !== data.userId ? false : true
 }
 
-export const getPostsModel = () => {
+const getPostsModel = () => {
 	return posts.filter(post => post.deleted_at === null)
 }
 
 //게시물 이미지 저장
 //이미지 저장
-export const addPostImageModel = image => {
+const addPostImageModel = image => {
 	const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/)
 
 	if (image.includes('localhost')) {
@@ -78,7 +76,7 @@ export const addPostImageModel = image => {
 }
 
 //게시물 작성 로직
-export const addPostModel = data => {
+const addPostModel = data => {
 	const user = checkUserModel(data.userId)
 	const date = getLocalDateTime()
 	const postId = postNum + 1
@@ -106,7 +104,7 @@ export const addPostModel = data => {
 }
 
 //게시물 수정 로직
-export const updatePostModel = data => {
+const updatePostModel = data => {
 	const { id, title, content, postImage, type } = data
 	const postIndex = posts.findIndex(post => post.postId === id && post.deleted_at === null)
 	if (title) {
@@ -128,7 +126,7 @@ export const updatePostModel = data => {
 	return posts[postIndex]
 }
 
-export const updatePostUserModel = data => {
+const updatePostUserModel = data => {
 	const { userId, nickname, profile_image } = data
 
 	const updatedPosts = posts.map(post => {
@@ -145,8 +143,22 @@ export const updatePostUserModel = data => {
 }
 
 //게시물 삭제 로직
-export const deletePostModel = id => {
+const deletePostModel = id => {
 	const date = getLocalDateTime()
 	posts[id - 1].deleted_at = date
 	return true
+}
+
+module.exports = {
+	getPostModel,
+	getMyPostsModel,
+	getOtherPostsModel,
+	getCodingPostsModel,
+	checkPostOwnerModel,
+	getPostsModel,
+	addPostImageModel,
+	addPostModel,
+	updatePostModel,
+	updatePostUserModel,
+	deletePostModel
 }

@@ -1,6 +1,6 @@
-import { checkUserEmailModel, checkUserNicknameModel } from '../model/users.js'
+const { checkUserEmailModel, checkUserNicknameModel } = require('../model/users.cjs')
 
-export const validation = (req, res, next) => {
+const validation = (req, res, next) => {
 	const { nickname, email } = req.body
 
 	if (checkUserEmailModel(email)) {
@@ -13,3 +13,5 @@ export const validation = (req, res, next) => {
 
 	next()
 }
+
+module.exports = { validation }

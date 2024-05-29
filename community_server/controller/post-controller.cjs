@@ -1,4 +1,4 @@
-import {
+const {
 	getPostModel,
 	checkPostOwnerModel,
 	getPostsModel,
@@ -9,7 +9,7 @@ import {
 	getMyPostsModel,
 	getOtherPostsModel,
 	getCodingPostsModel
-} from '../model/posts.js'
+} = require('../model/posts.cjs')
 
 //--------------------------------------------------------
 //실제 controller
@@ -178,7 +178,7 @@ const getCodingPosts = (req, res) => {
 	return res.status(200).json({ status: 200, message: '', data: codingPosts })
 }
 
-export const postController = {
+module.exports = {
 	getPosts,
 	getPost,
 	getPostImage,

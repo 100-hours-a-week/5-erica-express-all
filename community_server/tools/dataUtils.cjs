@@ -1,4 +1,4 @@
-export function getLocalDateTime() {
+function getLocalDateTime() {
 	const now = new Date()
 	const year = now.getFullYear()
 	const month = String(now.getMonth() + 1).padStart(2, '0')
@@ -9,3 +9,5 @@ export function getLocalDateTime() {
 
 	return `${year}-${month}-${day} ${hour}:${minute}:${second}`
 }
+
+module.exports = { getLocalDateTime }

@@ -1,11 +1,11 @@
-import { comments, posts } from './data.js'
-import { checkUserModel } from './users.js'
-import { getLocalDateTime } from '../tools/dataUtils.js'
+const { comments, posts } = require('./data.cjs')
+const { checkUserModel } = require('./users.cjs')
+const { getLocalDateTime } = require('../tools/dataUtils.cjs')
 
 let commentNum = comments.length
 
 //댓글 관련 service
-export const getCommentModel = data => {
+const getCommentModel = data => {
 	const { commentId, postId } = data
 
 	const comment = comments.find(
@@ -15,11 +15,11 @@ export const getCommentModel = data => {
 	return comment
 }
 
-export const getCommentsModel = postId => {
+const getCommentsModel = postId => {
 	return comments.filter(comment => comment.postId === postId && comment.deleted_at === null)
 }
 
-export const checkCommentOwnerModel = data => {
+const checkCommentOwnerModel = data => {
 	const comment = comments.find(comment => comment.commentId === data.commentId)
 
 	/*
@@ -30,7 +30,7 @@ export const checkCommentOwnerModel = data => {
 	return comment.userId !== data.userId || !comment ? false : true
 }
 
-export const addCommentModel = data => {
+const addCommentModel = data => {
 	const user = checkUserModel(data.userId)
 	const commentId = commentNum + 1
 	const date = getLocalDateTime()
@@ -55,7 +55,7 @@ export const addCommentModel = data => {
 	return true
 }
 
-export const updateCommentModel = data => {
+const updateCommentModel = data => {
 	//TODO: post id 검증 추가
 
 	const { commentId, commentContent } = data
@@ -65,7 +65,7 @@ export const updateCommentModel = data => {
 	return comments[commentIndex]
 }
 
-export const deleteCommentModel = (commentId, postId) => {
+const deleteCommentModel = (commentId, postId) => {
 	const commentIndex = comments.findIndex(comment => comment.commentId === commentId && comment.deleted_at === null)
 
 	const postIndex = posts.findIndex(post => post.postId === postId)
@@ -75,4 +75,13 @@ export const deleteCommentModel = (commentId, postId) => {
 	comments[commentIndex].deleted_at = date
 
 	return true
+}
+
+module.exports = {
+	getCommentModel,
+	getCommentsModel,
+	checkCommentOwnerModel,
+	addCommentModel,
+	updateCommentModel,
+	deleteCommentModel
 }
