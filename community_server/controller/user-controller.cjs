@@ -1,4 +1,3 @@
-const { users } = require('../model/data.cjs')
 const {
 	checkUserModel,
 	checkUserIdModel,
@@ -13,16 +12,16 @@ const {
 	getUserWriteCount
 } = require('../model/users.cjs')
 
-const getUsers = (req, res) => {
-	//TODO: 서버로 띄울 시 활셩화 필요
-	// users.forEach((user) => {
-	//   user.profile_image = user.profile_image.replace(
-	//     "http://localhost:8000",
-	//     `https://${req.headers.host}`
-	//   );
-	// });
-	return res.status(200).json({ status: 200, message: null, data: users })
-}
+// const getUsers = (req, res) => {
+// 	//TODO: 서버로 띄울 시 활셩화 필요
+// 	// users.forEach((user) => {
+// 	//   user.profile_image = user.profile_image.replace(
+// 	//     "http://localhost:8000",
+// 	//     `https://${req.headers.host}`
+// 	//   );
+// 	// });
+// 	return res.status(200).json({ status: 200, message: null, data: users })
+// }
 
 const getUser = async (req, res) => {
 	const userId = req.session.user.userId
@@ -213,7 +212,7 @@ const getMyCount = async (req, res) => {
 }
 
 const userController = {
-	getUsers,
+	// getUsers,
 	getUser,
 	addUser,
 	logInUser,

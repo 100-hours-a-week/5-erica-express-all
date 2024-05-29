@@ -20,7 +20,7 @@ const { validation } = require('../middleware/validation.cjs')
 const router = express.Router()
 
 //전체 유저 목록
-router.get('/', getAuthUser, getUsers)
+// router.get('/', getAuthUser, getUsers)
 
 //userId 회원 조회
 router.get('/user', getAuthUser, getUser)

@@ -1,4 +1,3 @@
-const { comments, posts } = require('./data.cjs')
 const { getLocalDateTime } = require('../tools/dataUtils.cjs')
 
 const db = require('../config/mysql.cjs')

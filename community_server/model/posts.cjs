@@ -1,13 +1,9 @@
-const { checkUserModel } = require('./users.cjs')
 const path = require('path')
 const fs = require('fs')
 const { getLocalDateTime } = require('../tools/dataUtils.cjs')
-const { posts } = require('./data.cjs')
 
 const db = require('../config/mysql.cjs')
 const conn = db.init()
-
-let postNum = posts.length
 
 //post관련 서비스
 //게시물 상세 조회 로직

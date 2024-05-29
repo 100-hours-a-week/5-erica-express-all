@@ -1,4 +1,3 @@
-const { comments, posts, users } = require('./data.cjs')
 const fs = require('fs')
 const path = require('path')
 const { getLocalDateTime } = require('../tools/dataUtils.cjs')
