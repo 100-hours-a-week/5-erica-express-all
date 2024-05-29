@@ -3,14 +3,11 @@ const path = require('path')
 const userRouter = require('./routes/user.cjs')
 const postRouter = require('./routes/post.cjs')
 const commentRouter = require('./routes/comment.cjs')
-const profileImageRouter = require('./routes/profileImage.cjs')
-const postImageRouter = require('./routes/postImage.cjs')
 const Sentry = require('@sentry/node')
 const { nodeProfilingIntegration } = require('@sentry/profiling-node')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const session = require('express-session')
-
 const app = express()
 const port = 8000
 const corsOptions = {
