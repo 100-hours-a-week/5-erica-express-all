@@ -6,7 +6,7 @@ const {
 	deleteCommentQuery
 } = require('../queries/comments.cjs')
 
-const queryPromise = require('../tools/queryUtils.cjs')
+const { queryPromise } = require('../tools/queryUtils.cjs')
 
 const getCommentModel = async commentId => {
 	return await queryPromise(getCommentQuery(commentId))

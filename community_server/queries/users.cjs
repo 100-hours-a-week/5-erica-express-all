@@ -1,3 +1,5 @@
+const { getLocalDateTime } = require('../tools/dataUtils.cjs')
+
 const getUserQuery = id => {
 	return `SELECT * 
     FROM users 

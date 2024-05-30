@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const bcrypt = require('bcryptjs')
 
-const queryPromise = require('../tools/queryUtils.cjs')
+const { queryPromise } = require('../tools/queryUtils.cjs')
 
 const {
 	getUserQuery,

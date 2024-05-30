@@ -12,7 +12,7 @@ const {
 	deletePostQuery
 } = require('../queries/posts.cjs')
 
-const queryPromise = require('../tools/queryUtils.cjs')
+const { queryPromise } = require('../tools/queryUtils.cjs')
 
 //post관련 서비스
 //게시물 상세 조회 로직

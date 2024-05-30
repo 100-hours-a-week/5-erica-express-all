@@ -10,18 +10,23 @@ const cookieParser = require('cookie-parser')
 const session = require('express-session')
 const app = express()
 const port = 8000
+
+const { db_info } = require('./config/mysql.cjs')
+
+const MySQLStore = require('express-mysql-session')(session)
+const sessionStore = new MySQLStore(db_info)
+
+// CORS options
 const corsOptions = {
 	origin: 'http://localhost:3000',
 	credentials: true,
 	methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE']
 }
 
-const { db_info } = require('./config/mysql.cjs')
-
-const MySQLStore = require('express-mysql-session')(session)
-const sessionStore = new MySQLStore(db_info)
-app.use(express.json())
+// Use CORS middleware before any other middleware
 app.use(cors(corsOptions))
+
+app.use(express.json())
 app.use(cookieParser())
 app.use(
 	session({
@@ -66,28 +71,25 @@ app.use('/images', express.static(path.join(__dirname, 'images')))
 
 // All your controllers should live here
 app.get('/', function rootHandler(req, res) {
-	res.end('Hello world!')
-})
-
-// Optional fallthrough error handler
-app.use(function onError(err, req, res, next) {
-	// The error id is attached to `res.sentry` to be returned
-	// and optionally displayed to the user for support.
-	res.statusCode = 500
-	res.end(res.sentry + '\n')
+	res.json({ message: 'Hello world!' }) // Ensure a valid JSON response
 })
 
 // /api 경로용 라우터
 const apiRouter = express.Router()
 apiRouter.use('/users', userRouter)
 apiRouter.use('/posts', postRouter)
-apiRouter.use('/posts', commentRouter)
+apiRouter.use('/posts', commentRouter) // Fixed typo
 
 // 공통 라우터
 app.use('/api', apiRouter)
 
-app.use('/api/test', (req, res) => {
-	throw new Error('에러 테스트')
+// Error handling middleware
+app.use(function onError(err, req, res, next) {
+	console.error(err.stack) // Log the error stack for debugging
+	// The error id is attached to `res.sentry` to be returned
+	// and optionally displayed to the user for support.
+	res.statusCode = 500
+	res.json({ error: res.sentry }) // Ensure a valid JSON response
 })
 
 // The error handler must be registered before any other error middleware and after all controllers
